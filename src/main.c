@@ -140,7 +140,10 @@ void JB_loadMedia() {
 	JB_Game.assetsHardcoded.background = JB_new_Image("assets/background.png");
 	JB_Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
 	JB_Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255 }, JB_Game.fonts.defaultFont);
-	JB_updateAsset(JB_Game.assetsHardcoded.fps, (JB_Asset) { .fontFitRect=true }, JB_AssetUpdate_fontFitRect);
+	SDL_Rect r = { 0, 0, 100, 100 };
+	JB_updateAsset(JB_Game.assetsHardcoded.fps,
+				   (JB_Asset) { .fontFitRect=true, .rect=&r },
+				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 }
 
 /**

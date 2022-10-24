@@ -15,9 +15,9 @@ void JB_renderFPS() {
 
 void JB_renderAssets(JB_Asset* assets) {
 	while(assets != NULL && assets->texture != NULL) {
-		if(assets->rect) {
+		if(assets->string && assets->font && assets->fontFitRect) {
 			SDL_Rect r = *assets->rect;
-			if(assets->fontFitRect) SDL_QueryTexture(assets->texture, NULL, NULL, &r.w, &r.h);
+			if(assets->fontFitRect) TTF_SizeText(assets->font, assets->string, &r.w, &r.h);
 			SDL_RenderCopy(JB_Game.renderer, assets->texture, NULL, &r);
 		}
 		else SDL_RenderCopy(JB_Game.renderer, assets->texture, NULL, assets->rect);
