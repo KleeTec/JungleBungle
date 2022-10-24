@@ -41,5 +41,5 @@ typedef struct JB_Asset {
 TTF_Font* JB_loadFont(char* path, int size);
 JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font);
 JB_Asset* JB_new_Image(char* path);
-JB_Asset* JB_updateAsset(JB_Asset* pt, JB_Asset update, int updateFlags);
+JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags);
 void JB_renderAssets(JB_Asset* assets);

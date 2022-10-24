@@ -28,6 +28,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 	// (Mindestzeit) abgelaufen ist, um Ressourcen zub schonen
 	long t1 = currentTimeMillis();
 	long t2 = t1;
+
+	SDL_GetWindowSize(JB_Game.window, &JB_Game.windowSize.width, &JB_Game.windowSize.height);
 	JB_Game.renderFunctions[JB_Game.modeType]();
 
 	while(JB_Game.running) {

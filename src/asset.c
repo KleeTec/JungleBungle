@@ -28,7 +28,6 @@ JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
 JB_Asset* JB_new_Image(char* path) {
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->texture = JB_loadImage(path);
-	JB_loadImage("assets/background.png");
 	return asset;
 }
 
@@ -50,25 +49,34 @@ TTF_Font* JB_loadFont(char* path, int size) {
 
 /**
  * aktualisiert das Textur-Element.
- * @param pt ==> Referenz zum zu aktualisierenden Element
+ * @param asset ==> Referenz zum zu aktualisierenden Element
  * @param update ==> Struct an zu aktualisierenden Daten
  * @param updateFlags ==> welche Daten aus dem Struct aktualisiert werden sollen
  * @return sich selbst
  */
-JB_Asset* JB_updateAsset(JB_Asset* pt, JB_Asset update, int updateFlags) {
+JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 	bool everything = updateFlags == JB_AssetUpdate_everything;
-	if(everything || updateFlags & JB_AssetUpdate_string) pt->string = update.string;
-	if(everything || updateFlags & JB_AssetUpdate_colour) pt->colour = update.colour;
-	if(everything || updateFlags & JB_AssetUpdate_font) pt->font = update.font;
-	if(everything || updateFlags & JB_AssetUpdate_fontFitRect) pt->fontFitRect = update.fontFitRect;
-	if(everything || updateFlags & JB_AssetUpdate_next) pt->next = update.next;
-	if(everything || updateFlags & JB_AssetUpdate_rect) pt->rect = update.rect;
+	if(everything || updateFlags & JB_AssetUpdate_string)
+		asset->string = update.string;
+	if(everything || updateFlags & JB_AssetUpdate_colour)
+		asset->colour = update.colour;
+	if(everything || updateFlags & JB_AssetUpdate_font)
+		asset->font = update.font;
+	if(everything || updateFlags & JB_AssetUpdate_fontFitRect)
+		asset->fontFitRect = update.fontFitRect;
+	if(everything || updateFlags & JB_AssetUpdate_next)
+		asset->next = update.next;
+	if(everything || updateFlags & JB_AssetUpdate_rect)
+		asset->rect = update.rect;
 	// Textur aktualisieren
-	int updateTexture = JB_AssetUpdate_font | JB_AssetUpdate_colour | JB_AssetUpdate_string;
-	if(everything || ( updateFlags & updateTexture ) == updateTexture) {
-		SDL_Surface* surface = TTF_RenderText_Solid(pt->font, pt->string, pt->colour);
-		pt->texture = SDL_CreateTextureFromSurface(JB_Game.renderer, surface);
+	if(everything ||( asset->string && (
+			updateFlags & JB_AssetUpdate_font ||
+			updateFlags & JB_AssetUpdate_colour ||
+			updateFlags & JB_AssetUpdate_string
+	))){
+		SDL_Surface* surface = TTF_RenderText_Solid(asset->font, asset->string, asset->colour);
+		asset->texture = SDL_CreateTextureFromSurface(JB_Game.renderer, surface);
 		SDL_FreeSurface(surface);
 	}
-	return pt;
+	return asset;
 }
