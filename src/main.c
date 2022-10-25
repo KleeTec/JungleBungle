@@ -12,6 +12,8 @@
 #include "include/asset.h"
 #include "include/things/game_objects.h"
 
+struct JB_Game_Struct JB_Game = {};
+
 /**
  *
  * @param argc ==> Menge an Argumenten (größer gleich 1)
@@ -53,6 +55,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		}
 		t2 = currentTimeMillis();
 	}
+	while(true);
 }
 
 

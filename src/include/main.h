@@ -15,7 +15,7 @@
 /**
  * das Spiel als globales Struct
  */
-struct {
+extern struct JB_Game_Struct{
 	/**
 	 * Der Name des Spiels
 	 */
