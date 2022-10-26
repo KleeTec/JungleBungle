@@ -43,6 +43,11 @@ extern struct JB_Game_Struct {
  	*/
 	struct { int width, height; } windowSize;
 
+	struct {
+		bool aHeld;
+		bool dHeld;
+	} controls;
+
 	/**
 	 * Der Renderer, der den Render-shit ganz am Rande rendert
 	 */

@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "include/main.h"
+#include "include/util.h"
 
 
 /**
@@ -11,7 +12,51 @@
  */
 _Noreturn void JB_EventHandler() {
 	SDL_Event event;
-	while(true) if(SDL_PollEvent(&event)) JB_Game.eventHandlerFunctions[JB_Game.modeType](&event);
+	long t1 = currentTimeMillis();
+	long t2 = t1;
+	while(true) {
+		SDL_GetWindowSize(Game.window, &Game.windowSize.width, &Game.windowSize.height);
+
+		if(SDL_PollEvent(&event)) Game.eventHandlerFunctions[Game.modeType](&event);
+
+		/**
+		 * Positionsberechnung der GameObjects
+		 */
+		if(Game.modeType == JB_MODE_ROUND) {
+			double delta_time = (double) ( t2 - t1 );
+			double restTime = ( 1000.0 / JB_MAX_FPS ) - delta_time;
+			if(restTime <= 0) {
+				t1 = currentTimeMillis();
+				JB_GameObject* player = Game.data.round.player;
+
+				// wenn Knopf gedrückt
+				if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_RIGHT) player->motion.x++;
+				if(Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_RIGHT) player->motion.x--;
+				// wenn Knopf losgelassen
+				if(!Game.controls.dHeld && player->motion.x > 0) player->motion.x--;
+				if(!Game.controls.aHeld && player->motion.x < 0) player->motion.x++;
+
+				JB_GameObject* currentObj = Game.gameObjects;
+				while(currentObj != NULL) {
+					// TODO: Kollisionswahrnehmung
+					currentObj = currentObj->next;
+				}
+
+				// Position aufgrund der Bewegung bestimmen
+				int newX = player->hitBox.x + player->motion.x;
+				int newY = player->hitBox.y + player->motion.y + Game.data.round.fallspeed++;
+				if(newX < Game.windowSize.width - player->hitBox.w && newX > 0) {
+					player->hitBox.x = newX;
+					player->assets->rect->x = newX;
+				}
+				if(newY > 0) {
+					player->hitBox.y = newY;
+					player->assets->rect->y = newY;
+				}
+			}
+			t2 = currentTimeMillis();
+		}
+	}
 }
 
 /**

@@ -61,6 +61,7 @@ struct JB_GameModeData {
 		 * der Affe :)
 		 */
 		JB_GameObject* player;
+		int fallspeed;
 	} round;
 	struct {
 		/**
