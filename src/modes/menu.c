@@ -21,7 +21,7 @@ void JB_changeModeToMenu() {
 	JB_updateAsset(button2.assets, (JB_Asset) { .rect = &button2.rect }, JB_AssetUpdate_rect);
 
 	static JB_Button button1 = {
-			.onclick=JB_changeModeToLevelEditor,
+			.onclick=JB_changeModeToRound,
 			.next=&button2,
 	};
 	button1.assets = JB_new_Image("assets/start_button.png");
@@ -32,7 +32,9 @@ void JB_changeModeToMenu() {
 }
 
 void JB_render_menu() {
-	SDL_Rect titleRect = {(Game.windowSize.width - 1200 ) / 2, (Game.windowSize.height - 300 ) / 2 - 300, 1200, 300 };
+	SDL_Rect titleRect = { ( Game.windowSize.width - 1200 ) / 2,
+						   ( Game.windowSize.height - 300 ) / 2 - 300,
+						   1200, 300 };
 	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
 	JB_renderAssets(Game.assetsHardcoded.title);
 
@@ -46,9 +48,9 @@ void JB_render_menu() {
  	*/
 	int counter = 0;
 	while(currentButton != NULL) {
-		SDL_Rect r = {Game.windowSize.width / 2 - 200, Game.windowSize.height / 2 + counter * 100, 400, 80 };
+		SDL_Rect r = { Game.windowSize.width / 2 - 200, Game.windowSize.height / 2 + counter * 100, 400, 80 };
 		currentButton->rect = r;
-		if (currentButton->hover) {
+		if(currentButton->hover) {
 			SDL_SetTextureAlphaMod(currentButton->assets->texture, 200);
 			SDL_SetTextureBlendMode(currentButton->assets->texture, SDL_BLENDMODE_BLEND);
 		} else {
