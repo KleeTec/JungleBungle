@@ -7,14 +7,22 @@
 
 
 void JB_changeModeToMenu() {
-	static JB_Button button2 = {
-			.rect={ 1, 1, 100, 100 },
-			.onclick=JB_changeModeToLevelEditor
+	static JB_Button button3 = {
+			.onclick=JB_quit,
 	};
+	button3.assets = JB_new_Image("assets/exit_button.png");
+	JB_updateAsset(button3.assets, (JB_Asset) { .rect = &button3.rect }, JB_AssetUpdate_rect);
+
+	static JB_Button button2 = {
+			.onclick=JB_changeModeToLevelEditor,
+			.next=&button3,
+	};
+	button2.assets = JB_new_Image("assets/level_editor_button.png");
+	JB_updateAsset(button2.assets, (JB_Asset) { .rect = &button2.rect }, JB_AssetUpdate_rect);
+
 	static JB_Button button1 = {
-			.rect ={ 100, 100, 200, 200 },
-			.onclick=JB_onTestButtonClick,
-			.next=&button2
+			.onclick=JB_changeModeToLevelEditor,
+			.next=&button2,
 	};
 	button1.assets = JB_new_Image("assets/start_button.png");
 	JB_updateAsset(button1.assets, (JB_Asset) { .rect = &button1.rect }, JB_AssetUpdate_rect);
