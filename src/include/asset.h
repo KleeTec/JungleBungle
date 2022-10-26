@@ -5,13 +5,14 @@
 #include <SDL2/SDL_ttf.h>
 
 
-#define JB_AssetUpdate_rect        0b000001
-#define JB_AssetUpdate_string      0b000010
-#define JB_AssetUpdate_next        0b000100
-#define JB_AssetUpdate_colour      0b001000
-#define JB_AssetUpdate_font        0b010000
-#define JB_AssetUpdate_fontFitRect 0b100000
-#define JB_AssetUpdate_everything  0b111111
+#define JB_AssetUpdate_rect        0b0000001
+#define JB_AssetUpdate_string      0b0000010
+#define JB_AssetUpdate_next        0b0000100
+#define JB_AssetUpdate_colour      0b0001000
+#define JB_AssetUpdate_font        0b0010000
+#define JB_AssetUpdate_fontFitRect 0b0100000
+#define JB_AssetUpdate_clip        0b1000000
+#define JB_AssetUpdate_everything  0b1111111
 
 /**
  * Kann einzeln stehen, um ohne HitBox gerendert zu werden, kann aber auch Teil eines GameObjects sein.
@@ -22,6 +23,10 @@ typedef struct JB_Asset {
 	 * Kann auch NULL sein, weshalb ein Pointer notwendig ist.
 	 */
 	SDL_Rect* rect;
+	/**
+	 *
+	 */
+	SDL_Rect* clip;
 	/**
 	 * die tatsächliche SDL-Textur
 	 */

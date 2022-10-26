@@ -7,7 +7,6 @@
 
 /**
  * erstellt eine neue JB_Asset
- * @param renderer ==> JB_Game.renderer
  * @param string ==> ein Text
  * @param colour ==> Farbe des Textes
  * @param font ==> Schriftart des Textes
@@ -18,9 +17,9 @@ JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
 	asset->string = string;
 	asset->colour = colour;
 	asset->font = font;
-	if(font == NULL) font = JB_loadFont("assets/roboto.ttf", 24);
+	if(font == NULL) font = JB_loadFont("assets/default_font.ttf", 24);
 	SDL_Surface* surface = TTF_RenderText_Solid(font, string, colour);
-	asset->texture = SDL_CreateTextureFromSurface(JB_Game.renderer, surface);
+	asset->texture = SDL_CreateTextureFromSurface(Game.renderer, surface);
 	SDL_FreeSurface(surface);
 	return asset;
 }
@@ -34,8 +33,7 @@ JB_Asset* JB_new_Image(char* path) {
 
 /**
  * Lädt die Font je nach Speicherort
- * @param game ==> Referenz zum Spiel
- * @param path ==> relativer Pfad zur Font (z.B. assets/roboto.ttf)
+ * @param path ==> relativer Pfad zur Font (z.B. assets/default_font.ttf)
  * @param size ==> Größe der Font
  * @return Referenz zur Font
  */
@@ -68,14 +66,16 @@ JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 		asset->next = update.next;
 	if(everything || updateFlags & JB_AssetUpdate_rect)
 		asset->rect = update.rect;
+	if(everything || updateFlags & JB_AssetUpdate_clip)
+		asset->clip = update.clip;
 	// Textur aktualisieren
-	if(everything ||( asset->string && (
+	if(everything || ( asset->string && (
 			updateFlags & JB_AssetUpdate_font ||
 			updateFlags & JB_AssetUpdate_colour ||
 			updateFlags & JB_AssetUpdate_string
-	))){
+	))) {
 		SDL_Surface* surface = TTF_RenderText_Solid(asset->font, asset->string, asset->colour);
-		asset->texture = SDL_CreateTextureFromSurface(JB_Game.renderer, surface);
+		asset->texture = SDL_CreateTextureFromSurface(Game.renderer, surface);
 		SDL_FreeSurface(surface);
 	}
 	return asset;
