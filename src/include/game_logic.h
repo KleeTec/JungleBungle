@@ -2,7 +2,7 @@
  * Diese Datei beschreibt alle möglichen Funktionen zur Steuerung des Spiels.
  * Jede Render-Funktion wird jeden Tick ausgeführt. Sie dürfen auf keinen Fall durch zB SDL_Delay() verzögert werden!
  * Ansonsten passieren unschöne Renderfehler.
- * Damit man dennoch zB über eine Schleife einen Farbwert anpassen, indem man den Zähler in JB_Game.mode.MODE.counter
+ * Damit man dennoch zB über eine Schleife einen Farbwert anpassen, indem man den Zähler in Game.mode.MODE.counter
  * speichert und am Ende der Funktion erhöht.
  * Alle Daten, die einer Funktion übergeben werden sollen oder in der Funktion genutzt werden sollen, müssen in game
  * gespeichert sein!

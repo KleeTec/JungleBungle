@@ -5,7 +5,7 @@
 /**
  * Der Modus des Spiels.<br/>
  * Dieser Spaß wird aufgeteilt, um Speicher zu sparen und die Logik ein bisschen einfacher zu halten.<br/>
- * Ist das Spiel gerade im Runden-Modus, ist (JB_Game.modeType == JB_MODE_ROUND)  und dann wird weiter unterteilt,
+ * Ist das Spiel gerade im Runden-Modus, ist (Game.modeType == JB_MODE_ROUND)  und dann wird weiter unterteilt,
  * ob zB im Runden-Modus gerade ein Menü angezeigt wird, oder eine Animation stattfindet usw...
  */
 enum JB_ModeType {
@@ -84,7 +84,7 @@ typedef struct JB_Button {
 	 * alle Texturen, die auf das Objekt angewendet werden
 	 * zB. ein Text "Play" und ein Hintergrund des Textes
 	 */
-	JB_Asset* textureElements;
+	JB_Asset* assets;
 	/**
 	 * ob gerade über das Objekt geschwebt wird
 	 */

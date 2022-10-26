@@ -15,7 +15,7 @@ typedef struct JB_GameObject {
 	/**
 	 * die Textur des Elements als TextureElement, da die Textur eine andere Größe haben kann als die HitBox
 	 */
-	JB_Asset* textureElements;
+	JB_Asset* assets;
 	/**
 	 * verlinkte Liste zum nächsten Objekt
 	 */

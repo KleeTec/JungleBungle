@@ -12,7 +12,8 @@
 #include "include/asset.h"
 #include "include/things/game_objects.h"
 
-struct JB_Game_Struct JB_Game = {};
+
+struct JB_Game_Struct Game = {};
 
 /**
  *
@@ -23,39 +24,37 @@ struct JB_Game_Struct JB_Game = {};
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) {
 	// Spiel laden, Texturen in das Spiel laden, usw.
 	JB_init_game("Jungle Bungle");
-	JB_Game.gameLogicThread = SDL_CreateThread((SDL_ThreadFunction) JB_EventHandler, "JB_EventHandler",
-											   &JB_Game);
+	Game.gameLogicThread = SDL_CreateThread((SDL_ThreadFunction) JB_EventHandler, "JB_EventHandler",
+											&Game);
 
 	// am Anfang wird einmal gerendert, danach nur, wenn die entsprechende Zeit
 	// (Mindestzeit) abgelaufen ist, um Ressourcen zub schonen
 	long t1 = currentTimeMillis();
 	long t2 = t1;
 
-	SDL_GetWindowSize(JB_Game.window, &JB_Game.windowSize.width, &JB_Game.windowSize.height);
-	JB_Game.renderFunctions[JB_Game.modeType]();
+	Game.renderFunctions[Game.modeType]();
 
-	while(JB_Game.running) {
+	while(Game.running) {
 		// Das muss immer laufen. Ohne Verzögerung, ohne sonst irgendwas!
 		SDL_PumpEvents();
-		SDL_GetWindowSize(JB_Game.window, &JB_Game.windowSize.width, &JB_Game.windowSize.height);
+
 
 		double delta_time = (double) ( t2 - t1 );
-		double restTime = ( 1000.0 / MAX_FPS ) - delta_time;
+		double restTime = ( 1000.0 / JB_MAX_FPS ) - delta_time;
 		if(restTime <= 0) {
-			JB_Game.fps = delta_time ? 1000.0 / delta_time : MAX_FPS;
+			Game.fps = delta_time ? 1000.0 / delta_time : JB_MAX_FPS;
 			t1 = currentTimeMillis();
 
-			SDL_SetRenderDrawColor(JB_Game.renderer, 0, 0, 0, 255);
-			SDL_RenderClear(JB_Game.renderer);
+			SDL_SetRenderDrawColor(Game.renderer, 0, 0, 0, 255);
+			SDL_RenderClear(Game.renderer);
 
-			JB_Game.renderFunctions[JB_Game.modeType]();
+			Game.renderFunctions[Game.modeType]();
 
 			JB_renderFPS();
-			SDL_RenderPresent(JB_Game.renderer);
+			SDL_RenderPresent(Game.renderer);
 		}
 		t2 = currentTimeMillis();
 	}
-	while(true);
 }
 
 
@@ -70,39 +69,39 @@ void JB_init_game(char* name) {
 	 * Führt man diese Funktion mehrmals aus, wird der gleiche Zeiger zurückgegeben.
 	 * Folgende Zeilen beschreiben einen normalen Aufbau eines SDL-Programms mit Erstellung eines Fensters, setzen des Names, usw...
 	 */
-	JB_Game.name = name;
-	JB_Game.error_code = SDL_Init(SDL_INIT_EVERYTHING);
-	if(JB_Game.error_code) JB_onError("SDL_Init");
+	Game.name = name;
+	Game.error_code = SDL_Init(SDL_INIT_EVERYTHING);
+	if(Game.error_code) JB_onError("SDL_Init");
 
-	JB_Game.error_code = TTF_Init();
-	if(JB_Game.error_code) JB_onError("TTF_Init");
+	Game.error_code = TTF_Init();
+	if(Game.error_code) JB_onError("TTF_Init");
 
-	JB_Game.window = SDL_CreateWindow(name,
-									  SDL_WINDOWPOS_CENTERED,
-									  SDL_WINDOWPOS_CENTERED,
-									  1920, 1080,
-									  SDL_WINDOW_RESIZABLE);
-	if(JB_Game.window == NULL) {
-		JB_Game.error_code = 1;
+	Game.window = SDL_CreateWindow(name,
+								   SDL_WINDOWPOS_CENTERED,
+								   SDL_WINDOWPOS_CENTERED,
+								   1920, 1080,
+								   SDL_WINDOW_RESIZABLE);
+	if(Game.window == NULL) {
+		Game.error_code = 1;
 		JB_onError("Create Window");
 	}
-	JB_Game.renderer = SDL_CreateRenderer(JB_Game.window, -1, SDL_RENDERER_ACCELERATED);
-	if(JB_Game.renderer == NULL) {
-		JB_Game.error_code = 1;
+	Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED);
+	if(Game.renderer == NULL) {
+		Game.error_code = 1;
 		JB_onError("Create Renderer");
 	}
 
 	/*
 	 * Siehe include/game_logic.h
 	 */
-	JB_Game.renderFunctions[JB_MODE_ANIMATION] = JB_render_startingAnimation;
-	JB_Game.renderFunctions[JB_MODE_MENU] = JB_render_menu;
-	JB_Game.renderFunctions[JB_MODE_ROUND] = JB_render_round;
-	JB_Game.renderFunctions[JB_MODE_LEVEL_EDITOR] = JB_render_levelEditor;
-	JB_Game.eventHandlerFunctions[JB_MODE_ANIMATION] = JB_handleEvents_startingAnimation;
-	JB_Game.eventHandlerFunctions[JB_MODE_MENU] = JB_handleEvents_menu;
-	JB_Game.eventHandlerFunctions[JB_MODE_ROUND] = JB_handleEvents_round;
-	JB_Game.eventHandlerFunctions[JB_MODE_LEVEL_EDITOR] = JB_handleEvents_levelEditor;
+	Game.renderFunctions[JB_MODE_ANIMATION] = JB_render_startingAnimation;
+	Game.renderFunctions[JB_MODE_MENU] = JB_render_menu;
+	Game.renderFunctions[JB_MODE_ROUND] = JB_render_round;
+	Game.renderFunctions[JB_MODE_LEVEL_EDITOR] = JB_render_levelEditor;
+	Game.eventHandlerFunctions[JB_MODE_ANIMATION] = JB_handleEvents_startingAnimation;
+	Game.eventHandlerFunctions[JB_MODE_MENU] = JB_handleEvents_menu;
+	Game.eventHandlerFunctions[JB_MODE_ROUND] = JB_handleEvents_round;
+	Game.eventHandlerFunctions[JB_MODE_LEVEL_EDITOR] = JB_handleEvents_levelEditor;
 
 	/*
 	 * Zuletzt wird ein Filter eingebaut, sodass das Spiel immer und jederzeit geschlossen werden kann.
@@ -110,58 +109,56 @@ void JB_init_game(char* name) {
 	 */
 	SDL_SetEventFilter((SDL_EventFilter) JB_filterEvents, NULL);
 	JB_loadMedia();
-	JB_Game.running = true;
+	Game.running = true;
 }
 
 void JB_appendAsset(JB_Asset* asset) {
-	if(JB_Game.assets == NULL) {
-		JB_Game.assets = asset;
+	if(Game.assets == NULL) {
+		Game.assets = asset;
 		return;
 	}
-	JB_Asset* current = JB_Game.assets;
+	JB_Asset* current = Game.assets;
 	while(current->next != NULL) current = current->next;
 	current->next = asset;
 }
 
 void JB_appendGameObject(JB_GameObject* gameObject) {
-	if(JB_Game.gameObjects == NULL) {
-		JB_Game.gameObjects = gameObject;
+	if(Game.gameObjects == NULL) {
+		Game.gameObjects = gameObject;
 		return;
 	}
-	JB_GameObject* current = JB_Game.gameObjects;
+	JB_GameObject* current = Game.gameObjects;
 	while(current->next != NULL) current = current->next;
 	current->next = gameObject;
 }
 
 /**
  * Lädt die Texturen in das Spiel
- * @param JB_Game ==> Referenz zum Spiel
  */
 void JB_loadMedia() {
-	JB_Game.error_code = !IMG_Init(IMG_INIT_PNG);
-	if(JB_Game.error_code) JB_onError("IMG init");
-	JB_Game.fonts.defaultFont = JB_loadFont("assets/roboto.ttf", 24);
+	Game.error_code = !IMG_Init(IMG_INIT_PNG);
+	if(Game.error_code) JB_onError("IMG init");
+	Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
 
-	JB_Game.assetsHardcoded.background = JB_new_Image("assets/background.png");
-	JB_Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
-	JB_Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255 }, JB_Game.fonts.defaultFont);
-	SDL_Rect r = { 0, 0, 100, 100 };
-	JB_updateAsset(JB_Game.assetsHardcoded.fps,
+	Game.assetsHardcoded.background = JB_new_Image("assets/background.png");
+	Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
+	Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) {255, 255, 255 }, Game.fonts.defaultFont);
+	SDL_Rect r = { 500, 500, 0, 0 };
+	JB_updateAsset(Game.assetsHardcoded.fps,
 				   (JB_Asset) { .fontFitRect=true, .rect=&r },
 				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 }
 
 /**
  * Lädt ein Bild, da der relative Pfad abhängig vom Betriebssystem unterschiedlich ist.
- * @param JB_Game ==> Referenz zum Spiel
  * @param path ==> relativer Pfad zum Bild (z.B. assets/background.png)
  * @return ==> Referenz zur Textur
  */
 SDL_Texture* JB_loadImage(char* path) {
 	SDL_Texture* img;
-	img = IMG_LoadTexture(JB_Game.renderer, path);
+	img = IMG_LoadTexture(Game.renderer, path);
 	if(img == NULL) {
-		img = IMG_LoadTexture(JB_Game.renderer, appendChar("../", path));
+		img = IMG_LoadTexture(Game.renderer, appendChar("../", path));
 		if(img == NULL) JB_onError("Texture loading");
 	}
 	return img;
@@ -237,19 +234,18 @@ int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event) {
 	return 1;
 }
 
-static void JB_DestroyAssets(JB_Asset* pt) {
-	if(pt == NULL) return;
-	if(pt->next != NULL) JB_DestroyAssets(pt->next);
-	SDL_DestroyTexture(pt->texture);
-	TTF_CloseFont(pt->font);
-	free(pt);
+static void JB_DestroyAssets(JB_Asset* assets) {
+	if(assets == NULL) return;
+	if(assets->next != NULL) JB_DestroyAssets(assets->next);
+	SDL_DestroyTexture(assets->texture);
+	TTF_CloseFont(assets->font);
+	free(assets);
 }
 
 static void JB_DestroyGameObjects(JB_GameObject* gameObject) {
 	if(gameObject == NULL) return;
 	if(gameObject->next != NULL) JB_DestroyGameObjects(gameObject->next);
-	JB_DestroyAssets(gameObject->textureElements);
-	free(gameObject);
+	JB_DestroyAssets(gameObject->assets);
 }
 
 /**
@@ -257,28 +253,28 @@ static void JB_DestroyGameObjects(JB_GameObject* gameObject) {
  * @param JB_Game ==> das Spiel
  */
 void JB_quit() {
-	JB_Game.running = false;
-	// JB_quit JB_Game logic thread
-	if(JB_Game.gameLogicThread) SDL_DetachThread(JB_Game.gameLogicThread);
+	Game.running = false;
+	// JB_quit Game logic thread
+	if(Game.gameLogicThread) SDL_DetachThread(Game.gameLogicThread);
 	SDL_Log("Spiellogik-Thread erfolgreich geschlossen.");
 
 	// destroy resources
-	JB_DestroyGameObjects(JB_Game.gameObjects);
-	JB_DestroyAssets(JB_Game.assets);
-	if(JB_Game.assetsHardcoded.background) JB_DestroyAssets(JB_Game.assetsHardcoded.background);
-	if(JB_Game.assetsHardcoded.title) JB_DestroyAssets(JB_Game.assetsHardcoded.title);
-	if(JB_Game.assetsHardcoded.fps) JB_DestroyAssets(JB_Game.assetsHardcoded.fps);
+	JB_DestroyGameObjects(Game.gameObjects);
+	JB_DestroyAssets(Game.assets);
+	if(Game.assetsHardcoded.background) JB_DestroyAssets(Game.assetsHardcoded.background);
+	if(Game.assetsHardcoded.title) JB_DestroyAssets(Game.assetsHardcoded.title);
+	if(Game.assetsHardcoded.fps) JB_DestroyAssets(Game.assetsHardcoded.fps);
 
-	if(JB_Game.renderer) SDL_DestroyRenderer(JB_Game.renderer);
-	if(JB_Game.window) SDL_DestroyWindow(JB_Game.window);
+	if(Game.renderer) SDL_DestroyRenderer(Game.renderer);
+	if(Game.window) SDL_DestroyWindow(Game.window);
 	SDL_Log("Ressourcen erfolgreich gelöscht");
 
 	// exit
 	IMG_Quit();
 	TTF_Quit();
 	SDL_Quit();
-	// JB_Game ist auf dem Stack (statische Variable) und muss nicht befreit werden
-	exit(JB_Game.error_code);
+	// Game ist auf dem Stack (statische Variable) und muss nicht befreit werden
+	exit(Game.error_code);
 }
 
 
@@ -288,6 +284,6 @@ void JB_quit() {
  * @param position ==> die Position im Kodex, an der der Error auftrat, da C keine Stacktrace anbietet...
  */
 void JB_onError(char* position) {
-	SDL_LogError(JB_Game.error_code, "Error %d %s: %s", JB_Game.error_code, position, SDL_GetError());
+	SDL_LogError(Game.error_code, "Error %d %s: %s", Game.error_code, position, SDL_GetError());
 	JB_quit();
 }

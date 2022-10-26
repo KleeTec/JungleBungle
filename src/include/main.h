@@ -10,12 +10,13 @@
 #include "things/game_objects.h"
 
 
-#define MAX_FPS 60.0
+#define JB_MAX_FPS 60.0
+#define JB_MAX_MOTION_RIGHT 5
 
 /**
  * das Spiel als globales Struct
  */
-extern struct JB_Game_Struct{
+extern struct JB_Game_Struct {
 	/**
 	 * Der Name des Spiels
 	 */
@@ -82,7 +83,7 @@ extern struct JB_Game_Struct{
 	 */
 	void (* renderFunctions[sizeof(enum JB_ModeType)])();
 	void (* eventHandlerFunctions[sizeof(enum JB_ModeType)])(SDL_Event* event);
-} JB_Game;
+} Game;
 
 
 void JB_init_game(char* name);

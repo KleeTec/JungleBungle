@@ -7,9 +7,9 @@
 
 
 void JB_render_startingAnimation() {
-	JB_renderAssets(JB_Game.assetsHardcoded.background);
+	JB_renderAssets(Game.assetsHardcoded.background);
 
-	switch(JB_Game.mode.startAnimation.state) {
+	switch(Game.mode.startAnimation.state) {
 		case 0:
 			JB_render_startingAnimation_StageOne();
 			break;
@@ -20,35 +20,35 @@ void JB_render_startingAnimation() {
 }
 
 void JB_render_startingAnimation_StageOne() {
-	double f = 0.8 * sqrt((double) JB_Game.data.startAnimation.counter / 1000) + 1;
-	int w = (int) ( 1200 * f );
-	int h = (int) ( 300 * f );
-	SDL_Rect titleRect = { ( JB_Game.windowSize.width - w ) / 2, ( JB_Game.windowSize.height - h ) / 2, w, h };
+	double f = 0.8 * sqrt((double) Game.data.startAnimation.counter / 1000) + 1;
+	int w = (int) ( 1200 * (f+0.01) );
+	int h = (int) ( 300 * (f+0.01) );
+	SDL_Rect titleRect = {(Game.windowSize.width - w ) / 2, (Game.windowSize.height - h ) / 2, w, h };
 
-	int alpha = (int) ( 255 * ( JB_Game.data.startAnimation.counter / ( MAX_FPS * 2 )));
-	if(alpha < 255) SDL_SetTextureAlphaMod(JB_Game.assetsHardcoded.title->texture, alpha);
+	int alpha = (int) ( 255 * (Game.data.startAnimation.counter / (MAX_FPS * 2 )));
+	if(alpha < 255) SDL_SetTextureAlphaMod(Game.assetsHardcoded.title->texture, alpha);
 
-	JB_updateAsset(JB_Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
-	JB_renderAssets(JB_Game.assetsHardcoded.title);
+	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
+	JB_renderAssets(Game.assetsHardcoded.title);
 
-	JB_Game.data.startAnimation.counter++;
-	if(JB_Game.data.startAnimation.counter >= MAX_FPS * 3) {
-		JB_Game.data.startAnimation.counter = 0;
-		JB_Game.mode.startAnimation.state = 1;
-	}
+	Game.data.startAnimation.counter++;
+	if(Game.data.startAnimation.counter >= JB_MAX_FPS * 3) Game.mode.startAnimation.state = 1;
 }
 
 void JB_render_startingAnimation_StageTwo() {
-	double f = ((double) JB_Game.data.startAnimation.counter / 100 ) *
-			   ((double) JB_Game.data.startAnimation.counter / 100 ) * 800 + 1;
-	int y = ( JB_Game.windowSize.height - 402 ) / 2;
-	SDL_Rect titleRect = { ( JB_Game.windowSize.width - 1607 ) / 2, y - (int) f, 1607, 402 };
+	double f = 0.8 * sqrt((double) Game.data.startAnimation.counter / 1000) + 1;
+	double f2 = Game.data.startAnimation.counter * (5.0 / 3.0);
 
-	JB_updateAsset(JB_Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
-	JB_renderAssets(JB_Game.assetsHardcoded.title);
+	int w = (int) ( 1200 * f );
+	int h = (int) ( 300 * f );
+	double y = (double) (Game.windowSize.height - h ) / 2 - (300 - f2);
+	SDL_Rect titleRect = {(Game.windowSize.width - w ) / 2, (int) y, w, h };
 
-	JB_Game.data.startAnimation.counter += 2;
-	if(JB_Game.data.startAnimation.counter >= MAX_FPS * 2) JB_changeModeToMenu();
+	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
+	JB_renderAssets(Game.assetsHardcoded.title);
+
+	Game.data.startAnimation.counter-=5;
+	if(f <= 1) JB_changeModeToMenu();
 }
 
 void JB_handleEvents_startingAnimation(SDL_Event* event) {

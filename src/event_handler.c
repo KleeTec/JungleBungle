@@ -18,7 +18,7 @@ _Noreturn void JB_EventHandler() {
  * Wenn über ein Objekt drüber gehalten wird, wird .hover=rue gesetzt.
  */
 void JB_setHover(enum JB_ModeType modeType, SDL_Event* event) {
-	JB_Button* object = JB_Game.buttons[modeType];
+	JB_Button* object = Game.buttons[modeType];
 	while(object != NULL) {
 		if(event->motion.x >= object->rect.x &&
 		   event->motion.y >= object->rect.y &&

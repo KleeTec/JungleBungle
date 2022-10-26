@@ -4,13 +4,12 @@
 
 /**
  * Rendert die FPS in die Ecke des Bildschirms
- * @param game ==> Referenz zum Spiel
  */
 void JB_renderFPS() {
 	char s[12];
-	sprintf(s, "%.1f FPS", JB_Game.fps);
-	JB_updateAsset(JB_Game.assetsHardcoded.fps, (JB_Asset) { .string=s }, JB_AssetUpdate_string);
-	JB_renderAssets(JB_Game.assetsHardcoded.fps);
+	sprintf(s, "%.1f FPS", Game.fps);
+	JB_updateAsset(Game.assetsHardcoded.fps, (JB_Asset) { .string=s }, JB_AssetUpdate_string);
+	JB_renderAssets(Game.assetsHardcoded.fps);
 }
 
 void JB_renderAssets(JB_Asset* assets) {

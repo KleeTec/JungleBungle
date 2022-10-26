@@ -20,12 +20,12 @@ void JB_changeModeToLevelEditor() {
 			.onclick=JB_initDrag,
 			.next=&button2
 	};
-	JB_Game.buttons[JB_MODE_LEVEL_EDITOR] = &button3;
-	JB_Game.modeType = JB_MODE_LEVEL_EDITOR;
+	Game.buttons[JB_MODE_LEVEL_EDITOR] = &button3;
+	Game.modeType = JB_MODE_LEVEL_EDITOR;
 }
 
 void JB_render_levelEditor() {
-	JB_Button* current = JB_Game.buttons[JB_MODE_LEVEL_EDITOR];
+	JB_Button* current = Game.buttons[JB_MODE_LEVEL_EDITOR];
 	/**
  	* Für die Ereignisbehandlung von Mausklicks bzw Mausbewegungen werden Listen an anklickbaren Objekten für jeden Spielmodus
 	* erstellt. Bei einem Mausereignis wird dann die aktuelle Liste durchiteriert und bei jedem Objekt geschaut, was das
@@ -37,9 +37,9 @@ void JB_render_levelEditor() {
 		SDL_Rect rect = current->rect;
 		rect.x += current->alignment.x;
 		rect.y += current->alignment.y;
-		SDL_SetRenderDrawColor(JB_Game.renderer, 255, 255 * current->hover, 10, 255);
-		SDL_RenderDrawRect(JB_Game.renderer, &rect);
-		JB_renderAssets(current->textureElements);
+		SDL_SetRenderDrawColor(Game.renderer, 255, 255 * current->hover, 10, 255);
+		SDL_RenderDrawRect(Game.renderer, &rect);
+		JB_renderAssets(current->assets);
 		current = current->next;
 	}
 }
@@ -47,11 +47,11 @@ void JB_render_levelEditor() {
 void JB_handleEvents_levelEditor(SDL_Event* event) {
 	switch(event->type) {
 		case SDL_MOUSEMOTION:
-			if(JB_Game.data.levelEditor.selectedClickableObject == NULL)
+			if(Game.data.levelEditor.selectedClickableObject == NULL)
 				JB_setHover(JB_MODE_LEVEL_EDITOR, event);
 			else {
 				JB_drag(event->motion, true);
-				JB_Button* object = JB_Game.buttons[JB_MODE_LEVEL_EDITOR];
+				JB_Button* object = Game.buttons[JB_MODE_LEVEL_EDITOR];
 				while(object != NULL) {
 					object->hover = false;
 					object = object->next;
@@ -61,9 +61,9 @@ void JB_handleEvents_levelEditor(SDL_Event* event) {
 		case SDL_MOUSEBUTTONDOWN:
 			({
 				if(event->button.button != SDL_BUTTON_LEFT) break;
-				JB_Game.data.levelEditor.oldMousePos.x = event->button.x;
-				JB_Game.data.levelEditor.oldMousePos.y = event->button.y;
-				JB_Button* object = JB_Game.buttons[JB_MODE_LEVEL_EDITOR];
+				Game.data.levelEditor.oldMousePos.x = event->button.x;
+				Game.data.levelEditor.oldMousePos.y = event->button.y;
+				JB_Button* object = Game.buttons[JB_MODE_LEVEL_EDITOR];
 				while(object != NULL) {
 					if(event->button.x >= object->rect.x &&
 					   event->button.y >= object->rect.y &&
@@ -75,29 +75,29 @@ void JB_handleEvents_levelEditor(SDL_Event* event) {
 			});
 			break;
 		case SDL_MOUSEBUTTONUP:
-			JB_Game.data.levelEditor.selectedClickableObject = NULL;
+			Game.data.levelEditor.selectedClickableObject = NULL;
 			break;
 	}
 }
 
 void JB_initDrag(JB_Button* this) {
-	JB_Game.data.levelEditor.selectedClickableObject = this;
+	Game.data.levelEditor.selectedClickableObject = this;
 }
 
 void JB_drag(SDL_MouseMotionEvent motion, bool aligned) {
-	JB_Button* obj = JB_Game.data.levelEditor.selectedClickableObject;
+	JB_Button* obj = Game.data.levelEditor.selectedClickableObject;
 	int windowSizeX, windowSizeY;
-	SDL_GetWindowSize(JB_Game.window, &windowSizeX, &windowSizeY);
+	SDL_GetWindowSize(Game.window, &windowSizeX, &windowSizeY);
 
-	int deltaMouseX = motion.x - JB_Game.data.levelEditor.oldMousePos.x;
+	int deltaMouseX = motion.x - Game.data.levelEditor.oldMousePos.x;
 	int newX = obj->rect.x + deltaMouseX;
 	if(newX > 0 && newX + obj->rect.w < windowSizeX) obj->rect.x = newX;
-	JB_Game.data.levelEditor.oldMousePos.x += deltaMouseX;
+	Game.data.levelEditor.oldMousePos.x += deltaMouseX;
 
-	int deltaMouseY = motion.y - JB_Game.data.levelEditor.oldMousePos.y;
+	int deltaMouseY = motion.y - Game.data.levelEditor.oldMousePos.y;
 	int newY = obj->rect.y + deltaMouseY;
 	if(newY > 0 && newY + obj->rect.h < windowSizeY) obj->rect.y = newY;
-	JB_Game.data.levelEditor.oldMousePos.y += deltaMouseY;
+	Game.data.levelEditor.oldMousePos.y += deltaMouseY;
 
 	if(aligned) {
 		int alignFactor = 50;

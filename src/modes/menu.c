@@ -16,12 +16,19 @@ void JB_changeModeToMenu() {
 			.onclick=JB_onTestButtonClick,
 			.next=&button2
 	};
-	JB_Game.buttons[JB_MODE_MENU] = &button1;
-	JB_Game.modeType = JB_MODE_MENU;
+	button1.assets = JB_new_Image("assets/start_button.png");
+	JB_updateAsset(button1.assets, (JB_Asset) { .rect = &button1.rect }, JB_AssetUpdate_rect);
+
+	Game.buttons[JB_MODE_MENU] = &button1;
+	Game.modeType = JB_MODE_MENU;
 }
 
 void JB_render_menu() {
-	JB_Button* currentButton = JB_Game.buttons[JB_MODE_MENU];
+	SDL_Rect titleRect = {(Game.windowSize.width - 1200 ) / 2, (Game.windowSize.height - 300 ) / 2 - 300, 1200, 300 };
+	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
+	JB_renderAssets(Game.assetsHardcoded.title);
+
+	JB_Button* currentButton = Game.buttons[JB_MODE_MENU];
 	/**
  	* Für die Ereignisbehandlung von Mausklicks bzw Mausbewegungen werden Listen an anklickbaren Objekten für jeden Spielmodus
 	* erstellt. Bei einem Mausereignis wird dann die aktuelle Liste durchiteriert und bei jedem Objekt geschaut, was das
@@ -29,11 +36,21 @@ void JB_render_menu() {
 	* Renderer dann darauf reagieren kann und das Objekt vielleicht anders dargestellt wird. Wird jedoch ein Klick-Ereignis
 	* gesendet, muss die Funktion ausgeführt werden, die das Objekt als Eigenschaft trägt.
  	*/
+	int counter = 0;
 	while(currentButton != NULL) {
-		SDL_SetRenderDrawColor(JB_Game.renderer, 50, 255 * currentButton->hover, 100, 255);
-		SDL_RenderDrawRect(JB_Game.renderer, &currentButton->rect);
-		JB_renderAssets(currentButton->textureElements);
+		SDL_Rect r = {Game.windowSize.width / 2 - 200, Game.windowSize.height / 2 + counter * 100, 400, 80 };
+		currentButton->rect = r;
+		if (currentButton->hover) {
+			SDL_SetTextureAlphaMod(currentButton->assets->texture, 200);
+			SDL_SetTextureBlendMode(currentButton->assets->texture, SDL_BLENDMODE_BLEND);
+		} else {
+			SDL_SetTextureAlphaMod(currentButton->assets->texture, 255);
+			SDL_SetTextureBlendMode(currentButton->assets->texture, SDL_BLENDMODE_NONE);
+		}
+
+		JB_renderAssets(currentButton->assets);
 		currentButton = currentButton->next;
+		counter++;
 	}
 }
 
@@ -45,13 +62,14 @@ void JB_handleEvents_menu(SDL_Event* event) {
 		case SDL_MOUSEBUTTONDOWN:
 			({
 				if(event->button.button != SDL_BUTTON_LEFT) break;
-				JB_Button* object = JB_Game.buttons[JB_MODE_MENU];
+				JB_Button* object = Game.buttons[JB_MODE_MENU];
 				while(object != NULL) {
 					if(event->button.x >= object->rect.x &&
 					   event->button.y >= object->rect.y &&
 					   event->button.x <= object->rect.x + object->rect.w &&
 					   event->button.y <= object->rect.y + object->rect.h) {
 						object->onclick(object);
+						return;
 					}
 					object = object->next;
 				}
@@ -62,11 +80,11 @@ void JB_handleEvents_menu(SDL_Event* event) {
 
 
 void JB_onTestButtonClick(JB_Button* this) {
-	JB_Asset* text = JB_new_Text("Test", (SDL_Colour) { 255, 255, 255 }, JB_Game.fonts.defaultFont);
+	JB_Asset* text = JB_new_Text("Test", (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
 	JB_updateAsset(text, (JB_Asset) { .rect=&this->rect }, JB_AssetUpdate_rect);
 
-	JB_Asset* currentAsset = this->textureElements;
-	if(currentAsset == NULL) this->textureElements = text;
+	JB_Asset* currentAsset = this->assets;
+	if(currentAsset == NULL) this->assets = text;
 	else {
 		while(currentAsset->next != NULL) currentAsset = currentAsset->next;
 		currentAsset->next = text;
