@@ -37,4 +37,6 @@ void JB_handleEvents_levelEditor(SDL_Event* event);
 void JB_initDrag(JB_Button* this);
 void JB_drag(SDL_MouseMotionEvent motion, bool aligned);
 
+void JB_getMenuButton(JB_Button* button, char* string);
+
 _Noreturn void JB_EventHandler();

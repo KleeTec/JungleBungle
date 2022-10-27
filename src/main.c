@@ -140,7 +140,7 @@ void JB_loadMedia() {
 	if(Game.error_code) JB_onError("IMG init");
 	Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
 
-	Game.assetsHardcoded.background = JB_new_Image("assets/background.png");
+	Game.assetsHardcoded.background = JB_new_Image("assets/sprites/background.png");
 	Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
 	Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) {255, 255, 255 }, Game.fonts.defaultFont);
 	SDL_Rect r = { 500, 500, 0, 0 };
@@ -151,7 +151,7 @@ void JB_loadMedia() {
 
 /**
  * Lädt ein Bild, da der relative Pfad abhängig vom Betriebssystem unterschiedlich ist.
- * @param path ==> relativer Pfad zum Bild (z.B. assets/background.png)
+ * @param path ==> relativer Pfad zum Bild (z.B. assets/sprites/background.png)
  * @return ==> Referenz zur Textur
  */
 SDL_Texture* JB_loadImage(char* path) {
