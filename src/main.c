@@ -22,6 +22,8 @@ struct JB_Game_Struct Game = {};
  * @return ==> nichts, da immer zuerst die JB_quit() aufgerufen wird
  */
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) {
+	JB_initMutex();
+
 	// Spiel laden, Texturen in das Spiel laden, usw.
 	JB_init_game("Jungle Bungle");
 	Game.gameLogicThread = SDL_CreateThread((SDL_ThreadFunction) JB_EventHandler, "JB_EventHandler",

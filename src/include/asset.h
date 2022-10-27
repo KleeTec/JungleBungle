@@ -48,3 +48,4 @@ JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font);
 JB_Asset* JB_new_Image(char* path);
 JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags);
 void JB_renderAssets(JB_Asset* assets);
+void JB_initMutex();

@@ -5,7 +5,11 @@
 #include "include/main.h"
 #include "include/util.h"
 
-bool queue = false;
+SDL_mutex *mutex;
+
+void JB_initMutex() {
+	mutex = SDL_CreateMutex();
+}
 
 /**
  * erstellt eine neue JB_Asset
@@ -15,8 +19,7 @@ bool queue = false;
  * @return neue JB_Asset
  */
 JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
-	while (queue) { SDL_Delay(1); }
-	queue = true;
+	while (SDL_LockMutex(mutex) != 0) {}
 
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->string = string;
@@ -27,18 +30,17 @@ JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
 	asset->texture = SDL_CreateTextureFromSurface(Game.renderer, surface);
 	SDL_FreeSurface(surface);
 
-	queue = false;
+	SDL_UnlockMutex(mutex);
 	return asset;
 }
 
 JB_Asset* JB_new_Image(char* path) {
-	while (queue) { SDL_Delay(1); }
-	queue = true;
+	while (SDL_LockMutex(mutex) != 0) {}
 
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->texture = JB_loadImage(path);
 
-	queue = false;
+	SDL_UnlockMutex(mutex);
 	return asset;
 }
 
@@ -50,15 +52,14 @@ JB_Asset* JB_new_Image(char* path) {
  * @return Referenz zur Font
  */
 TTF_Font* JB_loadFont(char* path, int size) {
-	while (queue) { SDL_Delay(1); }
-	queue = true;
+	while (SDL_LockMutex(mutex) != 0) {}
 
 	TTF_Font* font = TTF_OpenFont(path, size);
 	if(font == NULL) {
 		font = TTF_OpenFont(appendChar("../", path), size);
 	}
 
-	queue = false;
+	SDL_UnlockMutex(mutex);
 	return font;
 }
 
@@ -70,8 +71,7 @@ TTF_Font* JB_loadFont(char* path, int size) {
  * @return sich selbst
  */
 JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
-	while (queue) { SDL_Delay(1); }
-	queue = true;
+	while (SDL_LockMutex(mutex) != 0) {}
 
 	bool everything = updateFlags == JB_AssetUpdate_everything;
 	if(everything || updateFlags & JB_AssetUpdate_string)
@@ -99,6 +99,6 @@ JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 		SDL_FreeSurface(surface);
 	}
 
-	queue = false;
+	SDL_UnlockMutex(mutex);
 	return asset;
 }
