@@ -159,7 +159,9 @@ SDL_Texture* JB_loadImage(char* path) {
 	img = IMG_LoadTexture(Game.renderer, path);
 	if(img == NULL) {
 		img = IMG_LoadTexture(Game.renderer, appendChar("../", path));
-		if(img == NULL) JB_onError("Texture loading");
+		if(img == NULL) {
+			JB_onError("Texture loading");
+		}
 	}
 	return img;
 }
@@ -234,7 +236,7 @@ int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event) {
 	return 1;
 }
 
-static void JB_DestroyAssets(JB_Asset* assets) {
+void JB_DestroyAssets(JB_Asset* assets) {
 	if(assets == NULL) return;
 	if(assets->next != NULL) JB_DestroyAssets(assets->next);
 	SDL_DestroyTexture(assets->texture);
@@ -242,7 +244,7 @@ static void JB_DestroyAssets(JB_Asset* assets) {
 	free(assets);
 }
 
-static void JB_DestroyGameObjects(JB_GameObject* gameObject) {
+void JB_DestroyGameObjects(JB_GameObject* gameObject) {
 	if(gameObject == NULL) return;
 	if(gameObject->next != NULL) JB_DestroyGameObjects(gameObject->next);
 	JB_DestroyAssets(gameObject->assets);
@@ -276,7 +278,6 @@ void JB_quit() {
 	// Game ist auf dem Stack (statische Variable) und muss nicht befreit werden
 	exit(Game.error_code);
 }
-
 
 /**
  * Schmeißt den SDL-Error auf die Konsole
