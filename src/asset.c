@@ -19,7 +19,7 @@ void JB_initMutex() {
  * @return neue JB_Asset
  */
 JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
-	while (SDL_LockMutex(mutex) != 0) {}
+	SDL_LockMutex(mutex);
 
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->string = string;
@@ -35,7 +35,7 @@ JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
 }
 
 JB_Asset* JB_new_Image(char* path) {
-	while (SDL_LockMutex(mutex) != 0) {}
+	SDL_LockMutex(mutex);
 
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->texture = JB_loadImage(path);
@@ -52,7 +52,7 @@ JB_Asset* JB_new_Image(char* path) {
  * @return Referenz zur Font
  */
 TTF_Font* JB_loadFont(char* path, int size) {
-	while (SDL_LockMutex(mutex) != 0) {}
+	SDL_LockMutex(mutex);
 
 	TTF_Font* font = TTF_OpenFont(path, size);
 	if(font == NULL) {
@@ -71,7 +71,7 @@ TTF_Font* JB_loadFont(char* path, int size) {
  * @return sich selbst
  */
 JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
-	while (SDL_LockMutex(mutex) != 0) {}
+	SDL_LockMutex(mutex);
 
 	bool everything = updateFlags == JB_AssetUpdate_everything;
 	if(everything || updateFlags & JB_AssetUpdate_string)

@@ -8,7 +8,7 @@ void JB_changeModeToRound() {
 		JB_Asset* background = JB_new_Image("assets/sprites/background.png");
 		static SDL_Rect rect = {};
 		rect.w = Game.windowSize.width;
-		rect.h = Game.windowSize.height - 40;
+		rect.h = Game.windowSize.height;
 		JB_updateAsset(background, (JB_Asset) { .rect=&rect }, JB_AssetUpdate_rect);
 		JB_appendAsset(background);
 
