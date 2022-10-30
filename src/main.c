@@ -201,13 +201,10 @@ void JB_appendGameObject(JB_GameObject* gameObject) {
  * @return ==> Referenz zur Textur
  */
 SDL_Texture* JB_loadImage(char* path) {
-	SDL_Texture* img;
-	img = IMG_LoadTexture(Game.renderer, path);
+	SDL_Texture* img = IMG_LoadTexture(Game.renderer, path);
 	if(img == NULL) {
 		img = IMG_LoadTexture(Game.renderer, appendChar("../", path));
-		if(img == NULL) {
-			JB_onError("Texture loading");
-		}
+		if(img == NULL) JB_onError("Texture loading");
 	}
 	return img;
 }
@@ -283,8 +280,8 @@ int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event) {
 }
 
 void JB_DestroyAssets(JB_Asset* assets) {
-	if(assets == NULL) return;
-	if(assets->next != NULL) JB_DestroyAssets(assets->next);
+	if(!assets) return;
+	if(assets->next) JB_DestroyAssets(assets->next);
 	SDL_DestroyTexture(assets->texture);
 	TTF_CloseFont(assets->font);
 	free(assets);
@@ -304,14 +301,11 @@ void JB_quit() {
 	Game.running = false;
 
 	// destroy resources
-	JB_DestroyGameObjects(Game.gameObjects);
-	JB_DestroyAssets(Game.assets);
+	if(Game.gameObjects) JB_DestroyGameObjects(Game.gameObjects);
+	if(Game.assets) JB_DestroyAssets(Game.assets);
 	if(Game.assetsHardcoded.background) JB_DestroyAssets(Game.assetsHardcoded.background);
 	if(Game.assetsHardcoded.title) JB_DestroyAssets(Game.assetsHardcoded.title);
 	if(Game.assetsHardcoded.fps) JB_DestroyAssets(Game.assetsHardcoded.fps);
-
-	if(Game.renderer) SDL_DestroyRenderer(Game.renderer);
-	if(Game.window) SDL_DestroyWindow(Game.window);
 	SDL_Log("Ressourcen erfolgreich gelöscht");
 
 	// exit
