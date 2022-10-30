@@ -4,22 +4,22 @@
 #include "../include/main.h"
 
 void JB_changeModeToRound() {
-	if(!Game.gameObjects) {
-		JB_Asset* background = JB_new_Image("assets/sprites/background.png");
-		static SDL_Rect rect = {};
-		rect.w = Game.windowSize.width;
-		rect.h = Game.windowSize.height;
-		JB_updateAsset(background, (JB_Asset) { .rect=&rect }, JB_AssetUpdate_rect);
-		JB_appendAsset(background);
+	if(Game.gameObjects) {
+		Game.modeType = JB_MODE_ROUND;
+		return;
+	}
+	JB_Asset* background = JB_new_Image("assets/sprites/background.png");
+	JB_updateAsset(background, (JB_Asset) { .rect=&Game.windowSize }, JB_AssetUpdate_rect);
+	JB_appendAsset(background);
 
-		static JB_GameObject ground = {};
-		ground.hitBox.w = Game.windowSize.width;
-		ground.hitBox.h = 40;
-		ground.hitBox.x = 0;
-		ground.hitBox.y = Game.windowSize.height - ground.hitBox.h;
-		ground.assets = JB_new_Image("assets/sprites/ground.png");
-		JB_updateAsset(ground.assets, (JB_Asset) { .rect=&ground.hitBox }, JB_AssetUpdate_rect);
-		JB_appendGameObject(&ground);
+	JB_GameObject* ground = calloc(1, sizeof *ground);
+	ground->hitBox.w = Game.windowSize.w;
+	ground->hitBox.h = 40;
+	ground->hitBox.x = 0;
+	ground->hitBox.y = Game.windowSize.h - ground->hitBox.h;
+	ground->assets = JB_new_Image("assets/sprites/ground.png");
+	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
+	JB_appendGameObject(ground);
 
 		// TODO: Spieler an Bildschirmgröße anpassen
 		static JB_GameObject player = {};

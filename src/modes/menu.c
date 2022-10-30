@@ -7,24 +7,25 @@
 
 
 void JB_changeModeToMenu() {
-	static JB_Button button3 = {
-			.onclick=JB_quit,
-	};
-	JB_getMenuButton(&button3, "Exit");
+	if(Game.buttons[JB_MODE_MENU]) {
+		Game.modeType = JB_MODE_MENU;
+		return;
+	}
+	JB_Button* button3 = calloc(1, sizeof *button3);
+	button3->onclick = JB_quit;
+	JB_new_MenuButton(button3, "Exit");
 
-	static JB_Button button2 = {
-			.onclick=JB_changeModeToLevelEditor,
-			.next=&button3,
-	};
-	JB_getMenuButton(&button2, "Level Editor - Alpha");
+	JB_Button* button2 = calloc(1, sizeof *button2);
+	button2->onclick = JB_changeModeToLevelEditor;
+	button2->next = button3;
+	JB_new_MenuButton(button2, "Level Editor - Alpha");
 
-	static JB_Button button1 = {
-			.onclick=JB_changeModeToRound,
-			.next=&button2,
-	};
-	JB_getMenuButton(&button1, "Start Game");
+	JB_Button* button1 = calloc(1, sizeof *button1);
+	button1->onclick = JB_changeModeToRound;
+	button1->next = button2;
+	JB_new_MenuButton(button1, "Start Game");
 
-	Game.buttons[JB_MODE_MENU] = &button1;
+	Game.buttons[JB_MODE_MENU] = button1;
 	Game.modeType = JB_MODE_MENU;
 }
 
