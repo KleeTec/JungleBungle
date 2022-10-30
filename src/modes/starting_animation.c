@@ -23,7 +23,7 @@ void JB_render_startingAnimation_StageOne() {
 	double f = 0.8 * sqrt((double) Game.data.startAnimation.counter / 1000) + 1;
 	int w = (int) ( 1200 * ( f + 0.01 ));
 	int h = (int) ( 300 * ( f + 0.01 ));
-	SDL_Rect titleRect = { ( Game.windowSize.width - w ) / 2, ( Game.windowSize.height - h ) / 2, w, h };
+	SDL_Rect titleRect = { ( Game.windowSize.w - w ) / 2, ( Game.windowSize.h - h ) / 2, w, h };
 
 	int alpha = (int) ( 255 * ( Game.data.startAnimation.counter / ( JB_MAX_FPS * 2 )));
 	if(alpha < 255) SDL_SetTextureAlphaMod(Game.assetsHardcoded.title->texture, alpha);
@@ -41,8 +41,8 @@ void JB_render_startingAnimation_StageTwo() {
 
 	int w = (int) ( 1200 * f );
 	int h = (int) ( 300 * f );
-	double y = (double) ( Game.windowSize.height - h ) / 2 - ( 300 - f2 );
-	SDL_Rect titleRect = { ( Game.windowSize.width - w ) / 2, (int) y, w, h };
+	double y = (double) ( Game.windowSize.h - h ) / 2 - ( 300 - f2 );
+	SDL_Rect titleRect = { ( Game.windowSize.w - w ) / 2, (int) y, w, h };
 
 	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
 	JB_renderAssets(Game.assetsHardcoded.title);

@@ -55,7 +55,7 @@ void JB_render_menu() {
  	*/
 	int counter = 0;
 	while(currentButton != NULL) {
-		SDL_Rect r = { Game.windowSize.width / 2 - 200, Game.windowSize.height / 2 + counter * 100, 400, 80 };
+		SDL_Rect r = { Game.windowSize.w / 2 - 200, Game.windowSize.h / 2 + counter * 100, 400, 80 };
 		currentButton->rect = r;
 		if(currentButton->hover) {
 			SDL_SetTextureAlphaMod(currentButton->assets->texture, 200);
