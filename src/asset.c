@@ -15,7 +15,8 @@
  */
 JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
 	JB_Asset* asset = calloc(1, sizeof *asset);
-	asset->string = string;
+	asset->string = calloc(strlen(string) + 1, sizeof *string);
+	strcpy(asset->string, string);
 	asset->colour = colour;
 	asset->font = font;
 	if(font == NULL) font = JB_loadFont("assets/default_font.ttf", 24);
@@ -53,12 +54,16 @@ TTF_Font* JB_loadFont(char* path, int size) {
  */
 JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 	bool everything = updateFlags == JB_AssetUpdate_everything;
-	if(everything || updateFlags & JB_AssetUpdate_string)
+	if(everything || updateFlags & JB_AssetUpdate_string) {
+		free(asset->string);
 		asset->string = update.string;
+	}
 	if(everything || updateFlags & JB_AssetUpdate_colour)
 		asset->colour = update.colour;
-	if(everything || updateFlags & JB_AssetUpdate_font)
+	if(everything || updateFlags & JB_AssetUpdate_font) {
+		TTF_CloseFont(asset->font);
 		asset->font = update.font;
+	}
 	if(everything || updateFlags & JB_AssetUpdate_fontFitRect)
 		asset->fontFitRect = update.fontFitRect;
 	if(everything || updateFlags & JB_AssetUpdate_next)
@@ -74,6 +79,7 @@ JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 			updateFlags & JB_AssetUpdate_string
 	))) {
 		SDL_Surface* surface = TTF_RenderText_Solid(asset->font, asset->string, asset->colour);
+		if(asset->texture) SDL_DestroyTexture(asset->texture);
 		asset->texture = SDL_CreateTextureFromSurface(Game.renderer, surface);
 		SDL_FreeSurface(surface);
 	}

@@ -6,7 +6,7 @@
  * Rendert die FPS in die Ecke des Bildschirms
  */
 void JB_renderFPS() {
-	char s[12];
+	char* s = calloc(12, sizeof *s);
 	sprintf(s, "%.1f FPS", Game.fps);
 	JB_updateAsset(Game.assetsHardcoded.fps, (JB_Asset) { .string=s }, JB_AssetUpdate_string);
 	JB_renderAssets(Game.assetsHardcoded.fps);
