@@ -5,11 +5,6 @@
 #include "include/main.h"
 #include "include/util.h"
 
-SDL_mutex *mutex;
-
-void JB_initMutex() {
-	mutex = SDL_CreateMutex();
-}
 
 /**
  * erstellt eine neue JB_Asset
@@ -19,8 +14,6 @@ void JB_initMutex() {
  * @return neue JB_Asset
  */
 JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
-	SDL_LockMutex(mutex);
-
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->string = string;
 	asset->colour = colour;
@@ -29,18 +22,12 @@ JB_Asset* JB_new_Text(char* string, SDL_Color colour, TTF_Font* font) {
 	SDL_Surface* surface = TTF_RenderText_Solid(font, string, colour);
 	asset->texture = SDL_CreateTextureFromSurface(Game.renderer, surface);
 	SDL_FreeSurface(surface);
-
-	SDL_UnlockMutex(mutex);
 	return asset;
 }
 
 JB_Asset* JB_new_Image(char* path) {
-	SDL_LockMutex(mutex);
-
 	JB_Asset* asset = calloc(1, sizeof *asset);
 	asset->texture = JB_loadImage(path);
-
-	SDL_UnlockMutex(mutex);
 	return asset;
 }
 
@@ -52,14 +39,8 @@ JB_Asset* JB_new_Image(char* path) {
  * @return Referenz zur Font
  */
 TTF_Font* JB_loadFont(char* path, int size) {
-	SDL_LockMutex(mutex);
-
 	TTF_Font* font = TTF_OpenFont(path, size);
-	if(font == NULL) {
-		font = TTF_OpenFont(appendChar("../", path), size);
-	}
-
-	SDL_UnlockMutex(mutex);
+	if(font == NULL) font = TTF_OpenFont(appendChar("../", path), size);
 	return font;
 }
 
@@ -71,8 +52,6 @@ TTF_Font* JB_loadFont(char* path, int size) {
  * @return sich selbst
  */
 JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
-	SDL_LockMutex(mutex);
-
 	bool everything = updateFlags == JB_AssetUpdate_everything;
 	if(everything || updateFlags & JB_AssetUpdate_string)
 		asset->string = update.string;
@@ -98,7 +77,5 @@ JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 		asset->texture = SDL_CreateTextureFromSurface(Game.renderer, surface);
 		SDL_FreeSurface(surface);
 	}
-
-	SDL_UnlockMutex(mutex);
 	return asset;
 }

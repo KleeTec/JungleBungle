@@ -22,36 +22,86 @@ struct JB_Game_Struct Game = {};
  * @return ==> nichts, da immer zuerst die JB_quit() aufgerufen wird
  */
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) {
-	JB_initMutex();
-
 	// Spiel laden, Texturen in das Spiel laden, usw.
 	JB_init_game("Jungle Bungle");
-	Game.gameLogicThread = SDL_CreateThread((SDL_ThreadFunction) JB_EventHandler, "JB_EventHandler",
-											&Game);
-
 	// am Anfang wird einmal gerendert, danach nur, wenn die entsprechende Zeit
 	// (Mindestzeit) abgelaufen ist, um Ressourcen zub schonen
 	long t1 = currentTimeMillis();
 	long t2 = t1;
+	double oldFPS = JB_MAX_FPS;
 
+	SDL_Event event;
 	Game.renderFunctions[Game.modeType]();
 
 	while(Game.running) {
-		// Das muss immer laufen. Ohne Verzögerung, ohne sonst irgendwas!
-		SDL_PumpEvents();
-
 
 		double delta_time = (double) ( t2 - t1 );
 		double restTime = ( 1000.0 / JB_MAX_FPS ) - delta_time;
-		if(restTime <= 0) {
-			Game.fps = delta_time ? 1000.0 / delta_time : JB_MAX_FPS;
-			t1 = currentTimeMillis();
 
+		/**
+ 		* Ereignisabhandlung
+ 		*/
+		{
+			SDL_GetWindowSize(Game.window, &Game.windowSize.w, &Game.windowSize.h);
+			if(SDL_PollEvent(&event)) Game.eventHandlerFunctions[Game.modeType](&event);
+		}
+
+		/**
+		 * Ressourcen schonen
+		 */
+		if(restTime > 0) {
+			t2 = currentTimeMillis();
+			continue;
+		}
+
+		/**
+		 * FPS berechnen und setzen
+		 */
+		{
+			Game.fps = delta_time ? 1000.0 / delta_time : oldFPS;
+			oldFPS = Game.fps;
+			t1 = currentTimeMillis();
+		}
+
+		/**
+		 * Positionsberechnung der GameObjects
+		 */
+		if(Game.modeType == JB_MODE_ROUND) {
+			JB_GameObject* player = Game.data.round.player;
+
+			// wenn Knopf gedrückt
+			if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_RIGHT) player->motion.x++;
+			if(Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_RIGHT) player->motion.x--;
+			// wenn Knopf losgelassen
+			if(!Game.controls.dHeld && player->motion.x > 0) player->motion.x--;
+			if(!Game.controls.aHeld && player->motion.x < 0) player->motion.x++;
+
+			JB_GameObject* currentObj = Game.gameObjects;
+			while(currentObj != NULL) {
+				// TODO: Kollisionswahrnehmung
+				currentObj = currentObj->next;
+			}
+
+			// Position aufgrund der Bewegung bestimmen
+			int newX = player->hitBox.x + player->motion.x;
+			int newY = player->hitBox.y + player->motion.y + Game.data.round.fallspeed++;
+			if(newX < Game.windowSize.w - player->hitBox.w && newX > 0) {
+				player->hitBox.x = newX;
+				player->assets->rect->x = newX;
+			}
+			if(newY > 0) {
+				player->hitBox.y = newY;
+				player->assets->rect->y = newY;
+			}
+		}
+
+		/**
+		 * rendern
+		 */
+		{
 			SDL_SetRenderDrawColor(Game.renderer, 0, 0, 0, 255);
 			SDL_RenderClear(Game.renderer);
-
 			Game.renderFunctions[Game.modeType]();
-
 			JB_renderFPS();
 			SDL_RenderPresent(Game.renderer);
 		}
@@ -66,52 +116,62 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
  * @return Referenz zum neuen Spiel-Struct
  */
 void JB_init_game(char* name) {
-	/*
-	 * Es soll nur ein Spiel geben können, weshalb auch nur eine (statische) Variable davon erstellt wird.
-	 * Führt man diese Funktion mehrmals aus, wird der gleiche Zeiger zurückgegeben.
+	/**
 	 * Folgende Zeilen beschreiben einen normalen Aufbau eines SDL-Programms mit Erstellung eines Fensters, setzen des Names, usw...
 	 */
-	Game.name = name;
-	Game.error_code = SDL_Init(SDL_INIT_EVERYTHING);
-	if(Game.error_code) JB_onError("SDL_Init");
-
-	Game.error_code = TTF_Init();
-	if(Game.error_code) JB_onError("TTF_Init");
-
-	Game.window = SDL_CreateWindow(name,
-								   SDL_WINDOWPOS_CENTERED,
-								   SDL_WINDOWPOS_CENTERED,
-								   1920, 1080,
-								   SDL_WINDOW_RESIZABLE);
-	if(Game.window == NULL) {
-		Game.error_code = 1;
-		JB_onError("Create Window");
-	}
-	Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED);
-	if(Game.renderer == NULL) {
-		Game.error_code = 1;
-		JB_onError("Create Renderer");
+	{
+		Game.name = name;
+		if(( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_onError("SDL_Init");
+		if(( Game.error_code = TTF_Init())) JB_onError("TTF_Init");
+		Game.window = SDL_CreateWindow(name,
+									   SDL_WINDOWPOS_CENTERED,
+									   SDL_WINDOWPOS_CENTERED,
+									   1920, 1080,
+									   SDL_WINDOW_RESIZABLE);
+		if(Game.window == NULL) JB_onError("Create Window");
+		if(!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
+			JB_onError("Create Renderer");
 	}
 
-	/*
+	/**
 	 * Siehe include/game_logic.h
 	 */
-	Game.renderFunctions[JB_MODE_ANIMATION] = JB_render_startingAnimation;
-	Game.renderFunctions[JB_MODE_MENU] = JB_render_menu;
-	Game.renderFunctions[JB_MODE_ROUND] = JB_render_round;
-	Game.renderFunctions[JB_MODE_LEVEL_EDITOR] = JB_render_levelEditor;
-	Game.eventHandlerFunctions[JB_MODE_ANIMATION] = JB_handleEvents_startingAnimation;
-	Game.eventHandlerFunctions[JB_MODE_MENU] = JB_handleEvents_menu;
-	Game.eventHandlerFunctions[JB_MODE_ROUND] = JB_handleEvents_round;
-	Game.eventHandlerFunctions[JB_MODE_LEVEL_EDITOR] = JB_handleEvents_levelEditor;
+	{
+		Game.renderFunctions[JB_MODE_ANIMATION] = JB_render_startingAnimation;
+		Game.renderFunctions[JB_MODE_MENU] = JB_render_menu;
+		Game.renderFunctions[JB_MODE_ROUND] = JB_render_round;
+		Game.renderFunctions[JB_MODE_LEVEL_EDITOR] = JB_render_levelEditor;
+		Game.eventHandlerFunctions[JB_MODE_ANIMATION] = JB_handleEvents_startingAnimation;
+		Game.eventHandlerFunctions[JB_MODE_MENU] = JB_handleEvents_menu;
+		Game.eventHandlerFunctions[JB_MODE_ROUND] = JB_handleEvents_round;
+		Game.eventHandlerFunctions[JB_MODE_LEVEL_EDITOR] = JB_handleEvents_levelEditor;
+	}
 
-	/*
+	/**
+ 	* Medien laden
+ 	*/
+	{
+		Game.error_code = !IMG_Init(IMG_INIT_PNG);
+		if(Game.error_code) JB_onError("IMG init");
+		Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
+
+		Game.assetsHardcoded.background = JB_new_Image("assets/sprites/background.png");
+		Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
+		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
+		SDL_Rect r = { 100, 100, 0, 0 };
+		JB_updateAsset(Game.assetsHardcoded.fps,
+					   (JB_Asset) { .fontFitRect=true, .rect=&r },
+					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
+	}
+
+	/**
 	 * Zuletzt wird ein Filter eingebaut, sodass das Spiel immer und jederzeit geschlossen werden kann.
 	 * Die Medien (alle Assets) werden zum Schluss noch in den Zwischenspeicher geladen.
 	 */
-	SDL_SetEventFilter((SDL_EventFilter) JB_filterEvents, NULL);
-	JB_loadMedia();
-	Game.running = true;
+	{
+		SDL_SetEventFilter(JB_filterEvents, NULL);
+		Game.running = true;
+	}
 }
 
 void JB_appendAsset(JB_Asset* asset) {
@@ -134,22 +194,6 @@ void JB_appendGameObject(JB_GameObject* gameObject) {
 	current->next = gameObject;
 }
 
-/**
- * Lädt die Texturen in das Spiel
- */
-void JB_loadMedia() {
-	Game.error_code = !IMG_Init(IMG_INIT_PNG);
-	if(Game.error_code) JB_onError("IMG init");
-	Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
-
-	Game.assetsHardcoded.background = JB_new_Image("assets/sprites/background.png");
-	Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
-	Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) {255, 255, 255 }, Game.fonts.defaultFont);
-	SDL_Rect r = { 500, 500, 0, 0 };
-	JB_updateAsset(Game.assetsHardcoded.fps,
-				   (JB_Asset) { .fontFitRect=true, .rect=&r },
-				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
-}
 
 /**
  * Lädt ein Bild, da der relative Pfad abhängig vom Betriebssystem unterschiedlich ist.
@@ -258,9 +302,6 @@ void JB_DestroyGameObjects(JB_GameObject* gameObject) {
  */
 void JB_quit() {
 	Game.running = false;
-	// JB_quit Game logic thread
-	if(Game.gameLogicThread) SDL_DetachThread(Game.gameLogicThread);
-	SDL_Log("Spiellogik-Thread erfolgreich geschlossen.");
 
 	// destroy resources
 	JB_DestroyGameObjects(Game.gameObjects);

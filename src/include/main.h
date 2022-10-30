@@ -41,7 +41,7 @@ extern struct JB_Game_Struct {
 	/**
  	* die Ausmaße des Fensters
  	*/
-	struct { int width, height; } windowSize;
+	SDL_Rect windowSize;
 
 	struct {
 		bool aHeld;
@@ -52,11 +52,6 @@ extern struct JB_Game_Struct {
 	 * Der Renderer, der den Render-shit ganz am Rande rendert
 	 */
 	SDL_Renderer* renderer;
-
-	/**
-	 * Der Thread, der sich damit befasst, alle die
-	 */
-	SDL_Thread* gameLogicThread;
 
 	/**
 	 *  Welcher der Modi aktiv ist
@@ -98,6 +93,5 @@ SDL_Texture* JB_loadImage(char* path);
 
 void JB_quit();
 void JB_onError(char* position);
-void JB_loadMedia();
 
 int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event);
