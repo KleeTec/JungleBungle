@@ -21,22 +21,21 @@ void JB_changeModeToRound() {
 	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
 	JB_appendGameObject(ground);
 
-		// TODO: Spieler an Bildschirmgröße anpassen
-		static JB_GameObject player = {};
-		player.hitBox.w = 50;
-		player.hitBox.h = 100;
-		player.hitBox.x = ( Game.windowSize.width - player.hitBox.w ) / 2;
-		player.hitBox.y = ( Game.windowSize.height - player.hitBox.h ) / 2;
-		player.assets = JB_new_Image("assets/sprites/player.png");
-		static SDL_Rect size = {};
-		size.x = player.hitBox.x - 20;
-		size.y = player.hitBox.y - 4;
-		size.w = size.h = 100;
-		static SDL_Rect clip = { 0, 0, 32, 32 };
-		JB_updateAsset(player.assets, (JB_Asset) { .rect=&size, .clip=&clip },
-					   JB_AssetUpdate_rect | JB_AssetUpdate_clip);
-		Game.data.round.player = &player;
-	}
+	// TODO: Spieler an Bildschirmgröße anpassen
+	static JB_GameObject player = {};
+	player.hitBox.w = 50;
+	player.hitBox.h = 100;
+	player.hitBox.x = ( Game.windowSize.w - player.hitBox.w ) / 2;
+	player.hitBox.y = ( Game.windowSize.h - player.hitBox.h ) / 2;
+	player.assets = JB_new_Image("assets/sprites/player.png");
+	static SDL_Rect size = {};
+	size.x = player.hitBox.x - 20;
+	size.y = player.hitBox.y - 4;
+	size.w = size.h = 100;
+	static SDL_Rect clip = { 0, 0, 32, 32 };
+	JB_updateAsset(player.assets, (JB_Asset) { .rect=&size, .clip=&clip },
+				   JB_AssetUpdate_rect | JB_AssetUpdate_clip);
+	Game.data.round.player = &player;
 
 	Game.modeType = JB_MODE_ROUND;
 }

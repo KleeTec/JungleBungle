@@ -40,8 +40,8 @@ void JB_getMenuButton(JB_Button* button, char* string) {
 
 void JB_render_menu() {
 	JB_renderAssets(Game.assetsHardcoded.background);
-	SDL_Rect titleRect = { ( Game.windowSize.width - 1200 ) / 2,
-						   ( Game.windowSize.height - 300 ) / 2 - 300,
+	SDL_Rect titleRect = { ( Game.windowSize.w - 1200 ) / 2,
+						   ( Game.windowSize.h - 300 ) / 2 - 300,
 						   1200, 300 };
 	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
 	JB_renderAssets(Game.assetsHardcoded.title);
