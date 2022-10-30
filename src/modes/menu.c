@@ -29,13 +29,14 @@ void JB_changeModeToMenu() {
 	Game.modeType = JB_MODE_MENU;
 }
 
-void JB_getMenuButton(JB_Button* button, char* string) {
-	JB_Asset* text = JB_new_Text(string, (SDL_Colour) {255, 255, 255 }, Game.fonts.defaultFont);
+void JB_new_MenuButton(JB_Button* button, char* string) {
+	JB_Asset* text = JB_new_Text(string, (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
 	JB_updateAsset(text,
 				   (JB_Asset) { .fontFitRect=true, .rect=&button->rect },
 				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 	button->assets = JB_new_Image("assets/button.png");
-	JB_updateAsset(button->assets, (JB_Asset) { .rect = &button->rect, .next=text }, JB_AssetUpdate_rect | JB_AssetUpdate_next);
+	JB_updateAsset(button->assets, (JB_Asset) { .rect = &button->rect, .next=text },
+				   JB_AssetUpdate_rect | JB_AssetUpdate_next);
 }
 
 void JB_render_menu() {
