@@ -19,7 +19,13 @@ void JB_renderAssets(JB_Asset* assets) {
 	while(assets != NULL && assets->texture != NULL) {
 		if(assets->string && assets->font && assets->fontFitRect) {
 			SDL_Rect r = *assets->rect;
-			if(assets->fontFitRect) TTF_SizeText(assets->font, assets->string, &r.w, &r.h);
+			int w = r.w, h = r.h;
+			if (assets->fontFitRect) TTF_SizeText(assets->font, assets->string, &r.w, &r.h);
+			if (assets->centered) {
+				r.x += (w - r.w) / 2;
+				r.y += (h - r.h) / 2;
+			}
+			SDL_Log("W:%d H:%d X:%d Y:%d", r.w, r.h, r.x, r.y);
 			SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, &r);
 		}
 		else SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, assets->rect);

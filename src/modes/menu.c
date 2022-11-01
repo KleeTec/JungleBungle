@@ -30,6 +30,7 @@ void JB_changeModeToMenu() {
 
 void JB_new_MenuButton(JB_Button* button, char* string) {
 	JB_Asset* text = JB_new_Text(string, (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
+	text->centered = true;
 	JB_updateAsset(text,
 				   (JB_Asset) { .fontFitRect=true, .rect=&button->rect },
 				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
