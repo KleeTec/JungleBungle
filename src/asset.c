@@ -66,8 +66,10 @@ JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 	}
 	if(everything || updateFlags & JB_AssetUpdate_fontFitRect)
 		asset->fontFitRect = update.fontFitRect;
-	if(everything || updateFlags & JB_AssetUpdate_centred)
-		asset->centered = update.centered;
+	if(everything || updateFlags & JB_AssetUpdate_centeredX)
+		asset->centered.x = update.centered.x;
+	if(everything || updateFlags & JB_AssetUpdate_centeredY)
+		asset->centered.y = update.centered.y;
 	if(everything || updateFlags & JB_AssetUpdate_next)
 		asset->next = update.next;
 	if(everything || updateFlags & JB_AssetUpdate_rect)

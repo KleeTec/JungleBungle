@@ -5,15 +5,17 @@
 #include <SDL2/SDL_ttf.h>
 
 
-#define JB_AssetUpdate_rect        0b00000001
-#define JB_AssetUpdate_string      0b00000010
-#define JB_AssetUpdate_next        0b00000100
-#define JB_AssetUpdate_colour      0b00001000
-#define JB_AssetUpdate_font        0b00010000
-#define JB_AssetUpdate_fontFitRect 0b00100000
-#define JB_AssetUpdate_centred     0b01000000
-#define JB_AssetUpdate_clip        0b10000000
-#define JB_AssetUpdate_everything  0b11111111
+#define JB_AssetUpdate_rect        0b000000001
+#define JB_AssetUpdate_string      0b000000010
+#define JB_AssetUpdate_next        0b000000100
+#define JB_AssetUpdate_colour      0b000001000
+#define JB_AssetUpdate_font        0b000010000
+#define JB_AssetUpdate_fontFitRect 0b000100000
+#define JB_AssetUpdate_centeredX   0b001000000
+#define JB_AssetUpdate_centeredY   0b010000000
+#define JB_AssetUpdate_centeredAll 0b011000000
+#define JB_AssetUpdate_clip        0b100000000
+#define JB_AssetUpdate_everything  0b111111111
 
 /**
  * Kann einzeln stehen, um ohne HitBox gerendert zu werden, kann aber auch Teil eines GameObjects sein.
@@ -44,7 +46,10 @@ typedef struct JB_Asset {
 	/**
 	 * wenn true wird asset mittig gerendert
 	 */
-	bool centered;
+	struct {
+		bool x;
+		bool y;
+	} centered;
 } JB_Asset;
 
 
