@@ -120,13 +120,14 @@ void JB_init_game(char* name) {
 	 * Folgende Zeilen beschreiben einen normalen Aufbau eines SDL-Programms mit Erstellung eines Fensters, setzen des Names, usw...
 	 */
 	{
+		// TODO: Window Size automatisch vom Monitor übernehmen
 		Game.name = name;
 		if(( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_onError("SDL_Init");
 		if(( Game.error_code = TTF_Init())) JB_onError("TTF_Init");
 		Game.window = SDL_CreateWindow(name,
 									   SDL_WINDOWPOS_CENTERED,
 									   SDL_WINDOWPOS_CENTERED, 1920, 1080,
-									   SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+									   SDL_WINDOW_RESIZABLE/* | SDL_WINDOW_FULLSCREEN*/);
 		if(Game.window == NULL) JB_onError("Create Window");
 		if(!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
 			JB_onError("Create Renderer");
@@ -158,7 +159,7 @@ void JB_init_game(char* name) {
 		JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&Game.windowSize }, JB_AssetUpdate_rect);
 		Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
 		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
-		SDL_Rect r = { 100, 100, 100, 100 };
+		SDL_Rect r = { 10, 10, 0, 0 };
 		JB_updateAsset(Game.assetsHardcoded.fps,
 					   (JB_Asset) { .fontFitRect=true, .rect=&r },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);

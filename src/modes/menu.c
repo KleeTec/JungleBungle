@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 
 #include "../include/modes.h"
-#include "../include/asset.h"
 #include "../include/game_logic.h"
 #include "../include/main.h"
 
