@@ -29,7 +29,7 @@ void JB_changeModeToMenu() {
 }
 
 void JB_new_MenuButton(JB_Button* button, char* string) {
-	JB_Asset* text = JB_new_Text(string, (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
+	JB_Asset* text = JB_new_Text(string, (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
 	JB_updateAsset(text,
 				   (JB_Asset) { .fontFitRect=true, .centered={.x=true, .y=true} , .rect=&button->rect},
 				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_centeredAll | JB_AssetUpdate_rect);
@@ -98,7 +98,7 @@ void JB_handleEvents_menu(SDL_Event* event) {
 
 
 void JB_onTestButtonClick(JB_Button* this) {
-	JB_Asset* text = JB_new_Text("Test", (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
+	JB_Asset* text = JB_new_Text("Test", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
 	JB_updateAsset(text, (JB_Asset) { .rect=&this->rect }, JB_AssetUpdate_rect);
 
 	JB_Asset* currentAsset = this->assets;
