@@ -16,17 +16,16 @@ void JB_renderFPS() {
 
 void JB_renderAssets(JB_Asset* assets) {
 	while(assets != NULL && assets->texture != NULL) {
-		if(assets->string && assets->font && assets->fontFitRect) {
+		if (assets->string && assets->font && assets->fontFitRect) {
 			SDL_Rect r = *assets->rect;
 			int w = r.w, h = r.h;
 
 			if (assets->fontFitRect) TTF_SizeText(assets->font, assets->string, &r.w, &r.h);
-			if (assets->centered.x) r.x += (w - r.w) / 2;
-			if (assets->centered.y) r.y += (h - r.h) / 2;
+			if (assets->centered.x) r.x += ( w - r.w ) / 2;
+			if (assets->centered.y) r.y += ( h - r.h ) / 2;
 
 			SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, &r);
-		}
-		else SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, assets->rect);
+		} else SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, assets->rect);
 		assets = assets->next;
 	}
 }
@@ -38,10 +37,10 @@ void JB_renderAssets(JB_Asset* assets) {
 void JB_setHover(enum JB_ModeType modeType, SDL_Event* event) {
 	JB_Button* object = Game.buttons[modeType];
 	while(object != NULL) {
-		if(event->motion.x >= object->rect.x &&
-		   event->motion.y >= object->rect.y &&
-		   event->motion.x <= object->rect.x + object->rect.w &&
-		   event->motion.y <= object->rect.y + object->rect.h)
+		if (event->motion.x >= object->rect.x &&
+			event->motion.y >= object->rect.y &&
+			event->motion.x <= object->rect.x + object->rect.w &&
+			event->motion.y <= object->rect.y + object->rect.h)
 			object->hover = true;
 		else object->hover = false;
 		object = object->next;
