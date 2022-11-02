@@ -158,8 +158,8 @@ void JB_init_game(char* name) {
 		Game.assetsHardcoded.background = JB_new_Image("assets/sprites/background.png");
 		JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&Game.windowSize }, JB_AssetUpdate_rect);
 		Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
-		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255 }, Game.fonts.defaultFont);
-		SDL_Rect r = { 10, 10, 0, 0 };
+		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
+		static SDL_Rect r = { 10, 10, 0, 0 };
 		JB_updateAsset(Game.assetsHardcoded.fps,
 					   (JB_Asset) { .fontFitRect=true, .rect=&r },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);

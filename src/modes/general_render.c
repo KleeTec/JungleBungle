@@ -8,10 +8,9 @@
 void JB_renderFPS() {
 	char* s = calloc(12, sizeof *s);
 	sprintf(s, "%.1f FPS", Game.fps);
-	SDL_Rect r = { 10, 10, 0, 0 };
 	JB_updateAsset(Game.assetsHardcoded.fps,
-				   (JB_Asset) { .string=s, .rect=&r },
-				   JB_AssetUpdate_string | JB_AssetUpdate_rect);
+				   (JB_Asset) { .string=s },
+				   JB_AssetUpdate_string);
 	JB_renderAssets(Game.assetsHardcoded.fps);
 }
 
