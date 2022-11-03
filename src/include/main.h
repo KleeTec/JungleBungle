@@ -95,3 +95,4 @@ void JB_quit();
 void JB_onError(char* position);
 
 int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event);
+bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2);

@@ -21,6 +21,24 @@ void JB_changeModeToRound() {
 	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
 	JB_appendGameObject(ground);
 
+	JB_GameObject* block = calloc(1, sizeof *block);
+	block->hitBox.w = 80;
+	block->hitBox.h = 40;
+	block->hitBox.x = 500;
+	block->hitBox.y = Game.windowSize.h - 80;
+	block->assets = JB_new_Image("assets/sprites/ground.png");
+	JB_updateAsset(block->assets, (JB_Asset) { .rect=&block->hitBox }, JB_AssetUpdate_rect);
+	JB_appendGameObject(block);
+
+	JB_GameObject* block2 = calloc(1, sizeof *block2);
+	block2->hitBox.w = 80;
+	block2->hitBox.h = 40;
+	block2->hitBox.x = 400;
+	block2->hitBox.y = Game.windowSize.h - 200;
+	block2->assets = JB_new_Image("assets/sprites/ground.png");
+	JB_updateAsset(block2->assets, (JB_Asset) { .rect=&block2->hitBox }, JB_AssetUpdate_rect);
+	JB_appendGameObject(block2);
+
 	// TODO: Spieler an Bildschirmgröße anpassen
 	static JB_GameObject player = {};
 	player.hitBox.w = 50;

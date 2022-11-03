@@ -72,23 +72,69 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			// wenn Knopf gedrückt
 			if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_RIGHT) player->motion.x++;
 			if(Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_RIGHT) player->motion.x--;
+
 			// wenn Knopf losgelassen
 			if(!Game.controls.dHeld && player->motion.x > 0) player->motion.x--;
 			if(!Game.controls.aHeld && player->motion.x < 0) player->motion.x++;
 
-			JB_GameObject* currentObj = Game.gameObjects;
-			while(currentObj != NULL) {
-				// TODO: Kollisionswahrnehmung
-				currentObj = currentObj->next;
-			}
-
 			// Position aufgrund der Bewegung bestimmen
 			int newX = player->hitBox.x + player->motion.x;
 			int newY = player->hitBox.y + player->motion.y + Game.data.round.fallspeed++;
+			SDL_Rect newHitBox = { newX, newY, player->hitBox.w, player->hitBox.h };
+
+			JB_GameObject* currentObj = Game.gameObjects;
+			while(currentObj != NULL) {
+				/**
+				 * Kollision mit anderen Objekten
+				 */
+				if (!JB_checkCollision(newHitBox, currentObj->hitBox)) {
+					currentObj = currentObj->next;
+					continue;
+				}
+
+				/**
+				 * Kollision links am Objekt
+				 */
+				if (currentObj->hitBox.x >= player->hitBox.x + player->hitBox.w) {
+					SDL_Log("Seitlich links");
+					player->motion.x = 0;
+					newX = currentObj->hitBox.x - player->hitBox.w;
+				}
+
+				/**
+				 * Kollision rechts am Objekt
+				 */
+				if (currentObj->hitBox.x + currentObj->hitBox.w <= player->hitBox.x) {
+					SDL_Log("rechts");
+					player->motion.x = 0;
+					newX = currentObj->hitBox.x + currentObj->hitBox.w;
+				}
+
+				/**
+				 * Kollision oben am Objekt
+				 */
+				if (currentObj->hitBox.y >= player->hitBox.y + player->hitBox.h) {
+					Game.data.round.fallspeed = 0;
+					player->motion.y = 0;
+					newY = currentObj->hitBox.y - player->hitBox.h;
+				}
+
+				/**
+				 * Kollision unten am Objekt
+				 */
+				if (currentObj->hitBox.y + currentObj->hitBox.h <= player->hitBox.y) {
+					player->motion.y = 0;
+					newY = currentObj->hitBox.y + currentObj->hitBox.h;
+				}
+
+				currentObj = currentObj->next;
+			}
+
 			if(newX < Game.windowSize.w - player->hitBox.w && newX > 0) {
 				player->hitBox.x = newX;
 				player->assets->rect->x = newX;
 			}
+
 			if(newY > 0) {
 				player->hitBox.y = newY;
 				player->assets->rect->y = newY;
@@ -109,6 +155,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 	}
 }
 
+bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {
+	if(hitBox1.x + hitBox1.w < hitBox2.x) return false;
+	if(hitBox1.x > hitBox2.x + hitBox2.w) return false;
+	if(hitBox1.y + hitBox1.h < hitBox2.y) return false;
+	if(hitBox1.y > hitBox2.y + hitBox2.h) return false;
+	return true;
+}
 
 /**
  * Erstellt ein neues Spiel. Diese Funktion sollte nur einmal aufgerufen werden.
