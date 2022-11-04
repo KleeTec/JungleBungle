@@ -11,7 +11,7 @@
 
 
 #define JB_MAX_FPS 60.0
-#define JB_MAX_MOTION_RIGHT 5
+#define JB_MAX_MOTION_SPEED 9
 
 /**
  * das Spiel als globales Struct

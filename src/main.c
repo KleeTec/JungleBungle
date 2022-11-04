@@ -70,8 +70,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			JB_GameObject* player = Game.data.round.player;
 
 			// wenn Knopf gedrückt
-			if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_RIGHT) player->motion.x++;
-			if(Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_RIGHT) player->motion.x--;
+			if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_SPEED) player->motion.x++;
+			if(Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_SPEED) player->motion.x--;
 
 			// wenn Knopf losgelassen
 			if(!Game.controls.dHeld && player->motion.x > 0) player->motion.x--;
@@ -79,7 +79,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 			// Position aufgrund der Bewegung bestimmen
 			int newX = player->hitBox.x + player->motion.x;
-			int newY = player->hitBox.y + player->motion.y + Game.data.round.fallspeed++;
+			int newY = player->hitBox.y + player->motion.y + Game.data.round.fallSpeed++;
 			SDL_Rect newHitBox = { newX, newY, player->hitBox.w, player->hitBox.h };
 
 			JB_GameObject* currentObj = Game.gameObjects;
@@ -96,25 +96,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				 * Kollision links am Objekt
 				 */
 				if (currentObj->hitBox.x >= player->hitBox.x + player->hitBox.w) {
-					SDL_Log("Seitlich links");
 					player->motion.x = 0;
 					newX = currentObj->hitBox.x - player->hitBox.w;
+					currentObj = currentObj->next;
+					continue;
 				}
 
 				/**
 				 * Kollision rechts am Objekt
 				 */
 				if (currentObj->hitBox.x + currentObj->hitBox.w <= player->hitBox.x) {
-					SDL_Log("rechts");
 					player->motion.x = 0;
 					newX = currentObj->hitBox.x + currentObj->hitBox.w;
+					currentObj = currentObj->next;
+					continue;
 				}
 
 				/**
 				 * Kollision oben am Objekt
 				 */
 				if (currentObj->hitBox.y >= player->hitBox.y + player->hitBox.h) {
-					Game.data.round.fallspeed = 0;
+					Game.data.round.grounded = true;
+					Game.data.round.fallSpeed = 0;
 					player->motion.y = 0;
 					newY = currentObj->hitBox.y - player->hitBox.h;
 				}
