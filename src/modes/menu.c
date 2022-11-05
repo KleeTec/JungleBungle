@@ -6,6 +6,11 @@
 
 
 void JB_changeModeToMenu(bool pause) {
+	if (Game.buttons[JB_MODE_MENU]) {
+		JB_DestroyAssets(Game.assets);
+		Game.assets = NULL;
+	}
+
 	JB_Button* button3 = calloc(1, sizeof *button3);
 	button3->onclick = JB_quit;
 	JB_new_MenuButton(button3, "Exit");

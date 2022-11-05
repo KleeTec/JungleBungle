@@ -5,9 +5,12 @@
 
 void JB_changeModeToRound() {
 	if(Game.gameObjects) {
+		SDL_Log("Game.gameObjects is not NULL");
 		Game.modeType = JB_MODE_ROUND;
 		return;
 	}
+
+	SDL_Log("-------------------------");
 
 	JB_GameObject* ground = calloc(1, sizeof *ground);
 	ground->hitBox.w = 280;

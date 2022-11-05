@@ -68,9 +68,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		 */
 		if(Game.modeType == JB_MODE_ROUND) {
 			JB_GameObject* player = Game.data.round.player;
+			SDL_Log("Player: %d, %d", player->motion.x, player->motion.y);
 			if (player->hitBox.y > Game.windowSize.h) {
+				Game.data.round.fallSpeed = 0;
+				Game.controls.aHeld = false;
+				Game.controls.dHeld = false;
+				player->motion.x = 0;
+				player->motion.y = 0;
+				JB_DestroyGameObjects(Game.gameObjects);
+
 				Game.gameObjects = NULL;
 				JB_changeModeToMenu(false);
+				continue;
 			}
 
 			// wenn Knopf gedrückt
@@ -172,7 +181,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				x++;
 				double y = (-(1.0/100))*pow(x-60, 2) + 36;
 				SDL_Rect br = { Game.assetsHardcoded.background->rect->x, -10 + (int) y, 3994, 1123 };
-				SDL_Log("y: %f", y);
 				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 			} else if (offY > 0) {
 				double x = - 10*sqrt(-offY+36)+60;
