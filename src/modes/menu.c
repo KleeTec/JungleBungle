@@ -5,11 +5,7 @@
 #include "../include/main.h"
 
 
-void JB_changeModeToMenu() {
-	if(Game.buttons[JB_MODE_MENU]) {
-		Game.modeType = JB_MODE_MENU;
-		return;
-	}
+void JB_changeModeToMenu(bool pause) {
 	JB_Button* button3 = calloc(1, sizeof *button3);
 	button3->onclick = JB_quit;
 	JB_new_MenuButton(button3, "Exit");
@@ -22,7 +18,7 @@ void JB_changeModeToMenu() {
 	JB_Button* button1 = calloc(1, sizeof *button1);
 	button1->onclick = JB_changeModeToRound;
 	button1->next = button2;
-	JB_new_MenuButton(button1, "Start Game");
+	JB_new_MenuButton(button1, pause ? "Resume Game" : "Start Game");
 
 	Game.buttons[JB_MODE_MENU] = button1;
 	Game.modeType = JB_MODE_MENU;
@@ -39,7 +35,6 @@ void JB_new_MenuButton(JB_Button* button, char* string) {
 }
 
 void JB_render_menu() {
-	JB_renderAssets(Game.assetsHardcoded.background);
 	SDL_Rect titleRect = { ( Game.windowSize.w - 1200 ) / 2,
 						   ( Game.windowSize.h - 300 ) / 2 - 300,
 						   1200, 300 };

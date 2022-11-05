@@ -8,67 +8,37 @@ void JB_changeModeToRound() {
 		Game.modeType = JB_MODE_ROUND;
 		return;
 	}
-	JB_Asset* background = JB_new_Image("assets/sprites/background.png");
-	JB_updateAsset(background, (JB_Asset) { .rect=&Game.windowSize }, JB_AssetUpdate_rect);
-	JB_appendAsset(background);
 
 	JB_GameObject* ground = calloc(1, sizeof *ground);
-	ground->hitBox.w = Game.windowSize.w;
-	ground->hitBox.h = 40;
-	ground->hitBox.x = 0;
-	ground->hitBox.y = Game.windowSize.h - ground->hitBox.h;
+	ground->hitBox.w = 280;
+	ground->hitBox.h = 160;
+	ground->hitBox.x = Game.windowSize.w / 2 + ground->hitBox.w;
+	ground->hitBox.y = Game.windowSize.h - ground->hitBox.h * 2;
 	ground->assets = JB_new_Image("assets/sprites/ground.png");
 	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
 	JB_appendGameObject(ground);
 
-	JB_GameObject* block = calloc(1, sizeof *block);
-	block->hitBox.w = 80;
-	block->hitBox.h = 40;
-	block->hitBox.x = 600;
-	block->hitBox.y = Game.windowSize.h - 80;
-	block->assets = JB_new_Image("assets/sprites/ground.png");
-	JB_updateAsset(block->assets, (JB_Asset) { .rect=&block->hitBox }, JB_AssetUpdate_rect);
-	JB_appendGameObject(block);
-
-	JB_GameObject* block2 = calloc(1, sizeof *block2);
-	block2->hitBox.w = 80;
-	block2->hitBox.h = 40;
-	block2->hitBox.x = 500;
-	block2->hitBox.y = Game.windowSize.h - 150;
-	block2->assets = JB_new_Image("assets/sprites/ground.png");
-	JB_updateAsset(block2->assets, (JB_Asset) { .rect=&block2->hitBox }, JB_AssetUpdate_rect);
-	JB_appendGameObject(block2);
-
-	JB_GameObject* block3 = calloc(1, sizeof *block3);
-	block3->hitBox.w = 80;
-	block3->hitBox.h = 40;
-	block3->hitBox.x = 400;
-	block3->hitBox.y = Game.windowSize.h - 200;
-	block3->assets = JB_new_Image("assets/sprites/ground.png");
-	JB_updateAsset(block3->assets, (JB_Asset) { .rect=&block3->hitBox }, JB_AssetUpdate_rect);
-	JB_appendGameObject(block3);
-
-	JB_GameObject* block4 = calloc(1, sizeof *block4);
-	block4->hitBox.w = 80;
-	block4->hitBox.h = 40;
-	block4->hitBox.x = 300;
-	block4->hitBox.y = Game.windowSize.h - 150;
-	block4->assets = JB_new_Image("assets/sprites/ground.png");
-	JB_updateAsset(block4->assets, (JB_Asset) { .rect=&block4->hitBox }, JB_AssetUpdate_rect);
-	JB_appendGameObject(block4);
+	JB_GameObject* ground1 = calloc(1, sizeof *ground1);
+	ground1->hitBox.w = 280;
+	ground1->hitBox.h = 160;
+	ground1->hitBox.x = Game.windowSize.w / 2 - ground1->hitBox.w / 2;
+	ground1->hitBox.y = Game.windowSize.h - ground1->hitBox.h;
+	ground1->assets = JB_new_Image("assets/sprites/ground.png");
+	JB_updateAsset(ground1->assets, (JB_Asset) { .rect=&ground1->hitBox }, JB_AssetUpdate_rect);
+	JB_appendGameObject(ground1);
 
 	// TODO: Spieler an Bildschirmgröße anpassen
 	static JB_GameObject player = {};
-	player.hitBox.w = 50;
-	player.hitBox.h = 100;
+	player.hitBox.w = 128;
+	player.hitBox.h = 128;
 	player.hitBox.x = ( Game.windowSize.w - player.hitBox.w ) / 2;
 	player.hitBox.y = ( Game.windowSize.h - player.hitBox.h ) / 2;
 	player.assets = JB_new_Image("assets/sprites/player.png");
 	static SDL_Rect size = {};
 	size.x = player.hitBox.x;
 	size.y = player.hitBox.y;
-	size.w = 50;
-	size.h = 100;
+	size.w = 128;
+	size.h = 128;
 	JB_updateAsset(player.assets, (JB_Asset) { .rect=&size},
 				   JB_AssetUpdate_rect);
 	Game.data.round.player = &player;
@@ -101,11 +71,11 @@ void JB_handleEvents_round(SDL_Event* event) {
 			break;
 		case SDLK_SPACE:
 			if (!Game.data.round.grounded) break;
-			Game.data.round.player->motion.y -= 15;
+			Game.data.round.player->motion.y -= 20;
 			Game.data.round.grounded = false;
 			break;
 		case SDLK_ESCAPE:
-			JB_changeModeToMenu();
+			JB_changeModeToMenu(true);
 			break;
 		default:
 			return;

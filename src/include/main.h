@@ -62,9 +62,6 @@ extern struct JB_Game_Struct {
 	 * Daten, die zu dem jeweiligen Modus gehören, nicht allgemein zum Spiel
 	 */
 	struct JB_GameModeData data;
-	/**
-	 *
-	 */
 	struct {
 		JB_Asset* background;
 		JB_Asset* title;

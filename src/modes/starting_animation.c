@@ -7,8 +7,6 @@
 
 
 void JB_render_startingAnimation() {
-	JB_renderAssets(Game.assetsHardcoded.background);
-
 	switch(Game.mode.startAnimation.state) {
 		case 0:
 			JB_render_startingAnimation_StageOne();
@@ -48,7 +46,7 @@ void JB_render_startingAnimation_StageTwo() {
 	JB_renderAssets(Game.assetsHardcoded.title);
 
 	Game.data.startAnimation.counter -= 5;
-	if(f <= 1) JB_changeModeToMenu();
+	if(f <= 1) JB_changeModeToMenu(false);
 }
 
 void JB_handleEvents_startingAnimation(SDL_Event* event) {
@@ -56,7 +54,7 @@ void JB_handleEvents_startingAnimation(SDL_Event* event) {
 		case SDL_KEYDOWN:
 			if(event->key.keysym.sym == SDLK_RETURN) {
 				SDL_SetTextureAlphaMod(Game.assetsHardcoded.title->texture, 255);
-				JB_changeModeToMenu();
+				JB_changeModeToMenu(false);
 			}
 			break;
 	}

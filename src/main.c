@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <math.h>
 
 #include "include/main.h"
 #include "include/util.h"
@@ -34,7 +35,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 	Game.renderFunctions[Game.modeType]();
 
 	while(Game.running) {
-
 		double delta_time = (double) ( t2 - t1 );
 		double restTime = ( 1000.0 / JB_MAX_FPS ) - delta_time;
 
@@ -68,6 +68,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		 */
 		if(Game.modeType == JB_MODE_ROUND) {
 			JB_GameObject* player = Game.data.round.player;
+			if (player->hitBox.y > Game.windowSize.h) {
+				Game.gameObjects = NULL;
+				JB_changeModeToMenu(false);
+			}
 
 			// wenn Knopf gedrückt
 			if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_SPEED) player->motion.x++;
@@ -133,6 +137,51 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				currentObj = currentObj->next;
 			}
 
+			int offX = Game.assetsHardcoded.background->rect->x + 1080;
+			if (newX < player->hitBox.x) {
+				double x = - 10*sqrt(-offX+36)+60;
+				x++;
+				double y = (-(1.0/100))*pow(x-60, 2) + 36;
+				SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
+				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
+			} else if (newX > player->hitBox.x) {
+				double x = - 10*sqrt(offX+36)+60;
+				x++;
+				double y = ((1.0/100))*pow(x-60, 2) - 36;
+				SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
+				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
+			} else if (newX == player->hitBox.x) {
+				if (offX > 0) {
+					double x = - 10*sqrt(-offX+36)+60;
+					x--;
+					double y = (-(1.0/100))*pow(x-60, 2) + 36;
+					SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
+					JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
+				} else if (offX < 0) {
+					double x = - 10*sqrt(offX+36)+60;
+					x--;
+					double y = ((1.0/100))*pow(x-60, 2) - 36;
+					SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
+					JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
+				}
+			}
+
+			int offY = Game.assetsHardcoded.background->rect->y + 10;
+			if (newY < player->hitBox.y) {
+				double x = - 10*sqrt(-offY+36)+60;
+				x++;
+				double y = (-(1.0/100))*pow(x-60, 2) + 36;
+				SDL_Rect br = { Game.assetsHardcoded.background->rect->x, -10 + (int) y, 3994, 1123 };
+				SDL_Log("y: %f", y);
+				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
+			} else if (offY > 0) {
+				double x = - 10*sqrt(-offY+36)+60;
+				x--;
+				double y = (-(1.0/100))*pow(x-60, 2) + 36;
+				SDL_Rect br = { Game.assetsHardcoded.background->rect->x, -10 + (int) y, 3994, 1123 };
+				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
+			}
+
 			if(newX < Game.windowSize.w - player->hitBox.w && newX > 0) {
 				player->hitBox.x = newX;
 				player->assets->rect->x = newX;
@@ -150,6 +199,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		{
 			SDL_SetRenderDrawColor(Game.renderer, 0, 0, 0, 255);
 			SDL_RenderClear(Game.renderer);
+			JB_renderAssets(Game.assetsHardcoded.background);
 			Game.renderFunctions[Game.modeType]();
 			JB_renderFPS();
 			SDL_RenderPresent(Game.renderer);
@@ -212,7 +262,8 @@ void JB_init_game(char* name) {
 		Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
 
 		Game.assetsHardcoded.background = JB_new_Image("assets/sprites/background.png");
-		JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&Game.windowSize }, JB_AssetUpdate_rect);
+		static SDL_Rect br = { -1080, -10, 3994, 1123 };
+		JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 		Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
 		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
 		static SDL_Rect r = { 10, 10, 0, 0 };

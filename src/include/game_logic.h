@@ -20,7 +20,7 @@ void JB_render_startingAnimation_StageTwo();
 void JB_handleEvents_startingAnimation(SDL_Event* event);
 
 // Menü
-void JB_changeModeToMenu();
+void JB_changeModeToMenu(bool pause);
 void JB_render_menu();
 void JB_handleEvents_menu(SDL_Event* event);
 void JB_onTestButtonClick(JB_Button* this);
