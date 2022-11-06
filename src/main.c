@@ -68,13 +68,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		 */
 		if(Game.modeType == JB_MODE_ROUND) {
 			JB_GameObject* player = Game.data.round.player;
-			SDL_Log("Player: %d, %d", player->motion.x, player->motion.y);
 			if (player->hitBox.y > Game.windowSize.h) {
 				Game.data.round.fallSpeed = 0;
 				Game.controls.aHeld = false;
 				Game.controls.dHeld = false;
 				player->motion.x = 0;
 				player->motion.y = 0;
+				Game.data.round.windowAdjustment = 0;
 				JB_DestroyGameObjects(Game.gameObjects);
 
 				Game.gameObjects = NULL;
@@ -146,27 +146,65 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				currentObj = currentObj->next;
 			}
 
+			/**
+			 * Simuliert eine kleine Bewegung des Hintergrundes. Dieser bewegt sich immer ein kleines stück passend zur Bewegung des Spielers
+			 */
 			int offX = Game.assetsHardcoded.background->rect->x + 1080;
 			if (newX < player->hitBox.x) {
+				/**
+				 * Wenn der Spieler nach links läuft:<br/>
+				 * Derzeitige Bewegung (x-Koordinate) des Hintergrundes anhand der Funktion berechnen
+				 */
 				double x = - 10*sqrt(-offX+36)+60;
 				x++;
+
+				/**
+				 * Neue Bewegung (x-Koordinate) des Hintergrundes anhand y=-(1/100)(x-60)^2+36 berechnen
+				 */
 				double y = (-(1.0/100))*pow(x-60, 2) + 36;
+
+				/**
+				 * Bewegung des Hintergrundes anpassen
+				 */
 				SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
 				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 			} else if (newX > player->hitBox.x) {
+				/**
+				 * Wenn der Spieler nach rechts läuft:<br/>
+				 * Das selbe wie bei der Bewegung nach links nur umgekehrt
+				 */
 				double x = - 10*sqrt(offX+36)+60;
 				x++;
 				double y = ((1.0/100))*pow(x-60, 2) - 36;
 				SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
 				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 			} else if (newX == player->hitBox.x) {
+				/**
+				 * Wenn der Spieler nicht läuft:<br/>
+				 */
 				if (offX > 0) {
+					/**
+					 * Wenn der Hintergrund zuvor nach links gelaufen ist:<br/>
+					 * Derzeitige Bewegung (x-Koordinate) des Hintergrundes anhand der Funktion berechnen
+					 */
 					double x = - 10*sqrt(-offX+36)+60;
 					x--;
+
+					/**
+					 * Neue Bewegung (x-Koordinate) des Hintergrundes anhand y=-(1/100)(x-60)^2+36 berechnen
+					 */
 					double y = (-(1.0/100))*pow(x-60, 2) + 36;
+
+					/**
+					 * Bewegung des Hintergrundes anpassen
+					 */
 					SDL_Rect br = { -1080 + (int) y, Game.assetsHardcoded.background->rect->y, 3994, 1123 };
 					JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 				} else if (offX < 0) {
+					/**
+					 * Wenn der Hintergrund zuvor nach rechts gelaufen ist:<br/>
+					 * Das selbe wie bei der Bewegung nach links nur umgekehrt
+					 */
 					double x = - 10*sqrt(offX+36)+60;
 					x--;
 					double y = ((1.0/100))*pow(x-60, 2) - 36;
@@ -175,20 +213,93 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				}
 			}
 
+			/**
+			 * Simuliert die vertikale Bewegung des Hintergrundes
+			 */
 			int offY = Game.assetsHardcoded.background->rect->y + 10;
 			if (newY < player->hitBox.y) {
+				/**
+				 * Wenn sich der Spieler nach oben bewegt:<br/>
+				 * Das selbe wie bei der Bewegung nach links und rechts
+				 */
 				double x = - 10*sqrt(-offY+36)+60;
 				x++;
 				double y = (-(1.0/100))*pow(x-60, 2) + 36;
 				SDL_Rect br = { Game.assetsHardcoded.background->rect->x, -10 + (int) y, 3994, 1123 };
 				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 			} else if (offY > 0) {
+				/**
+				 * Wenn der Spieler nach unten fällt:<br/>
+				 * Das selbe wie bei der Bewegung nach oben nur umgekehrt
+				 */
 				double x = - 10*sqrt(-offY+36)+60;
 				x--;
 				double y = (-(1.0/100))*pow(x-60, 2) + 36;
 				SDL_Rect br = { Game.assetsHardcoded.background->rect->x, -10 + (int) y, 3994, 1123 };
 				JB_updateAsset(Game.assetsHardcoded.background, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 			}
+
+			/**
+			 * Damit der Spieler sich nicht aus dem Bildschirm bewegen kann, wird der Spieler anhand einer Funktion relativ in die Mitte des Bildschirms gehalten.<br/>
+			 * Die Grundfunktionsgleichung ist:<br/>y=(JB_MAX_MOTION_SPEED * 10/-x) + JB_MAX_MOTION_SPEED + 1
+			 */
+			int altNewX = newX;
+			if (Game.data.round.windowAdjustment >= 0 && (Game.controls.dHeld && !Game.controls.aHeld || player->motion.x > 0)) {
+				/**
+				 * Grundbedingung: Der Spieler hat sich davor nicht bewegt oder er bewegt sich nach rechts.<br/>
+				 * Dazu müssen noch Nebenbedingungen erfüllt sein, damit es zu keinen Fehlern oder überschneidungen kommt
+				 */
+				Game.data.round.windowAdjustment++;
+
+				/**
+				 * Überprüfung, ob der Spieler davor stand oder nicht. Das ist nötig, da die Grundfunktion bei werten unter JB_MAX_MOTION_SPEED + 1 im negativen Bereich liegt
+				 */
+				Game.data.round.windowAdjustment = (Game.data.round.windowAdjustment == 1) ? JB_MAX_MOTION_SPEED + 1 : Game.data.round.windowAdjustment;
+
+				/**
+				 * Berechnung der tatsächlich Dargestellten Bewegung des Spielers. windowAdjustment wird dabei als x-Koordinate verwendet
+				 */
+				int adjY = (JB_MAX_MOTION_SPEED * 10/-Game.data.round.windowAdjustment) + JB_MAX_MOTION_SPEED + 1;
+
+				/**
+				 * Wenn der Spieler im Bild schon zum erlaubten Bereich bewegt wurde, bleibt die Position konstant
+				 */
+				if (adjY > JB_MAX_MOTION_SPEED) adjY = JB_MAX_MOTION_SPEED;
+				if (adjY > newX - player->hitBox.x) adjY = newX - player->hitBox.x;
+
+				/**
+				 * Die Bewegung des Spielers wird durchgeführt
+				 */
+				newX -= adjY;
+			} else if (Game.data.round.windowAdjustment <= 0 && (Game.controls.aHeld && !Game.controls.dHeld || player->motion.x < 0)) {
+				/**
+				 * Das selbe wie bei der Bewegung nach rechts nur umgekehrt
+				 */
+				Game.data.round.windowAdjustment--;
+				Game.data.round.windowAdjustment = (Game.data.round.windowAdjustment == -1) ? -1 - JB_MAX_MOTION_SPEED : Game.data.round.windowAdjustment;
+				int adjY = (JB_MAX_MOTION_SPEED * 10/Game.data.round.windowAdjustment) + JB_MAX_MOTION_SPEED + 1;
+				if (adjY > JB_MAX_MOTION_SPEED) adjY = JB_MAX_MOTION_SPEED;
+				if (adjY > player->hitBox.x - newX) adjY = player->hitBox.x - newX;
+				newX += adjY;
+			} else if (Game.data.round.windowAdjustment != 0) {
+				/**
+				 * Wenn der Spieler nicht mehr bewegt wird, wird windowAdjustment nach und nach wieder auf 0 gesetzt
+				 */
+				int center = ( Game.windowSize.w - player->hitBox.w ) / 2 - player->hitBox.x;
+				if (center <= 5 && center >= -5) Game.data.round.windowAdjustment = 0;
+				if (center > 0) newX = ( Game.windowSize.w - player->hitBox.w ) / 2 - center + 5;
+				else if (center < 0) newX = ( Game.windowSize.w - player->hitBox.w ) / 2 - center - 5;
+			}
+
+			/**
+			 * Die Bewegung des Spielers wird auf die Objekte angewendet um die Illusion einer Bewegung des Spielers zu erzeugen
+			 */
+			currentObj = Game.gameObjects;
+			while(currentObj != NULL) {
+				currentObj->hitBox.x += newX - altNewX;
+				currentObj = currentObj->next;
+			}
+
 
 			if(newX < Game.windowSize.w - player->hitBox.w && newX > 0) {
 				player->hitBox.x = newX;

@@ -5,12 +5,9 @@
 
 void JB_changeModeToRound() {
 	if(Game.gameObjects) {
-		SDL_Log("Game.gameObjects is not NULL");
 		Game.modeType = JB_MODE_ROUND;
 		return;
 	}
-
-	SDL_Log("-------------------------");
 
 	JB_GameObject* ground = calloc(1, sizeof *ground);
 	ground->hitBox.w = 280;
@@ -24,7 +21,7 @@ void JB_changeModeToRound() {
 	JB_GameObject* ground1 = calloc(1, sizeof *ground1);
 	ground1->hitBox.w = 280;
 	ground1->hitBox.h = 160;
-	ground1->hitBox.x = Game.windowSize.w / 2 - ground1->hitBox.w / 2;
+	ground1->hitBox.x = Game.windowSize.w / 2 - ground1->hitBox.w / 3;
 	ground1->hitBox.y = Game.windowSize.h - ground1->hitBox.h;
 	ground1->assets = JB_new_Image("assets/sprites/ground.png");
 	JB_updateAsset(ground1->assets, (JB_Asset) { .rect=&ground1->hitBox }, JB_AssetUpdate_rect);
