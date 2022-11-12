@@ -122,10 +122,16 @@ void JB_render_round() {
 	JB_GameObject* currentObject = Game.gameObjects;
 	while(currentObject) {
 		JB_renderAssets(currentObject->assets);
-		SDL_RenderDrawRect(Game.renderer, &currentObject->hitBox);
+		if (Game.data.round.showHitboxes){
+			SDL_SetRenderDrawColor(Game.renderer, 0, 255, 0, 255);
+			SDL_RenderDrawRect(Game.renderer, &currentObject->hitBox);
+		}
 		currentObject = currentObject->next;
 	}
-	SDL_RenderDrawRect(Game.renderer, &Game.data.round.player->hitBox);
+	if (Game.data.round.showHitboxes){
+		SDL_SetRenderDrawColor(Game.renderer, 0, 255, 0, 255);
+		SDL_RenderDrawRect(Game.renderer, &Game.data.round.player->hitBox);
+	}
 	JB_renderAssets(Game.data.round.player->assets);
 }
 

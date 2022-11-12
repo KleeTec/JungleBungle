@@ -65,6 +65,7 @@ struct JB_GameModeData {
 		bool grounded;
 		int windowAdjustment;
 		int counter;
+		bool showHitboxes;
 	} round;
 	struct {
 		/**
