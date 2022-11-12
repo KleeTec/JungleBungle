@@ -8,7 +8,7 @@
 void JB_changeModeToLevelEditor() {
 	static JB_Button button1 = {
 			.rect={ 1, 1, 100, 100 },
-			.onclick=JB_changeModeToMenu
+			.onclick=(void (*)()) JB_changeModeToMenu
 	};
 	static JB_Button button2 = {
 			.rect ={ 100, 100, 200, 200 },
