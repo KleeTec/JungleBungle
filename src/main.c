@@ -190,7 +190,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			 * Die Grundfunktionsgleichung ist:<br/>y=(JB_MAX_MOTION_SPEED * 10/-x) + JB_MAX_MOTION_SPEED + 1
 			 */
 			int altNewX = newX;
-			if (Game.data.round.windowAdjustment >= 0 && (Game.controls.dHeld && !Game.controls.aHeld || player->motion.x > 0)) {
+			if (Game.data.round.windowAdjustment >= 0 && (( Game.controls.dHeld && !Game.controls.aHeld) || player->motion.x > 0)) {
 				/**
 				 * Grundbedingung: Der Spieler hat sich davor nicht bewegt oder er bewegt sich nach rechts.<br/>
 				 * Dazu müssen noch Nebenbedingungen erfüllt sein, damit es zu keinen Fehlern oder überschneidungen kommt

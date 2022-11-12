@@ -6,7 +6,7 @@
 #include "../include/main.h"
 
 void JB_changeModeToRound() {
-	if(Game.gameObjects) {
+	if (Game.gameObjects){
 		Game.modeType = JB_MODE_ROUND;
 		return;
 	}
@@ -53,7 +53,7 @@ void JB_changeModeToRound() {
 	size.y = player.hitBox.y;
 	size.w = 132;
 	size.h = 112;
-	JB_updateAsset(player.assets, (JB_Asset) { .rect=&size},
+	JB_updateAsset(player.assets, (JB_Asset) { .rect=&size },
 				   JB_AssetUpdate_rect);
 	Game.data.round.player = &player;
 
@@ -67,7 +67,7 @@ void JB_generateBlock() {
 	bool extra = rand() & 1;
 	bool vines = rand() & 1;
 
-	while (ranY * ranY + ranX * ranX > 650 * 650) {
+	while(ranY * ranY + ranX * ranX > 650 * 650) {
 		ranX = rand() % 600 + 250;
 		ranY = rand() % 200;
 	}
@@ -79,12 +79,15 @@ void JB_generateBlock() {
 	ground->hitBox.w = current->hitBox.w;
 	ground->hitBox.h = current->hitBox.h;
 	ground->hitBox.x = current->hitBox.x + ranX;
-	ground->hitBox.y = !top && current->hitBox.y + ranY + ground->hitBox.h < Game.windowSize.h ? current->hitBox.y + ranY : current->hitBox.y - ranY;
+	ground->hitBox.y =
+			!top && current->hitBox.y + ranY + ground->hitBox.h < Game.windowSize.h ?
+			current->hitBox.y + ranY :
+			current->hitBox.y - ranY;
 	ground->assets = JB_new_Image("assets/sprites/ground.png");
 	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
 
-	if (extra) {
-		int ranExtraX = rand() % (ground->hitBox.w - 80);
+	if (extra){
+		int ranExtraX = rand() % ( ground->hitBox.w - 80 );
 		JB_GameObject* extraObj = calloc(1, sizeof *extraObj);
 		extraObj->hitBox.w = 80;
 		extraObj->hitBox.h = 64;
@@ -96,10 +99,10 @@ void JB_generateBlock() {
 		ground = extraObj;
 	}
 
-	if (vines) {
+	if (vines){
 		JB_GameObject* mainGround = extra ? ground->next : ground;
-		int ranVinesX = rand() % (mainGround->hitBox.w - 160);
-		int ranVinesY = rand() % (mainGround->hitBox.h - 160);
+		int ranVinesX = rand() % ( mainGround->hitBox.w - 160 );
+		int ranVinesY = rand() % ( mainGround->hitBox.h - 160 );
 		JB_GameObject* vinesObj = calloc(1, sizeof *vinesObj);
 		vinesObj->hitBox.w = 160;
 		vinesObj->hitBox.h = 160;
@@ -127,7 +130,7 @@ void JB_render_round() {
 }
 
 void JB_handleEvents_round(SDL_Event* event) {
-	if(!( event->type == SDL_KEYDOWN || event->type == SDL_KEYUP )) return;
+	if (!( event->type == SDL_KEYDOWN || event->type == SDL_KEYUP )) return;
 	switch(event->key.keysym.sym) {
 		case SDLK_a:
 			Game.controls.aHeld = event->type == SDL_KEYDOWN;
