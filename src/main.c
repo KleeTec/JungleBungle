@@ -105,6 +105,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 			JB_GameObject* currentObj = Game.gameObjects;
 			bool grounded = false;
+			int objOut = 0;
 			while(currentObj != NULL) {
 				/**
 				 * Kollision mit anderen Objekten
@@ -152,9 +153,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 					newY = currentObj->hitBox.y + currentObj->hitBox.h;
 				}
 
+				if (currentObj->hitBox.x > Game.windowSize.w) {
+					objOut++;
+				}
+
 				currentObj = currentObj->next;
 			}
 			Game.data.round.grounded = grounded;
+
+			if (objOut <= 1) {
+				JB_generateBlock();
+			}
 
 			/**
 			 * Simuliert die vertikale Bewegung des Hintergrundes
@@ -250,8 +259,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			 * Die Bewegung wird nun auf die x-Koordinate des Hintergrundes angewendet. Allerdings bewegt sich dieser halb so schnell wie der Spieler
 			 */
 			double x = Game.assetsHardcoded.background1->rect->x + (double) (newX - altNewX) / 2;
-			SDL_Rect br1 = {(int) x, Game.assetsHardcoded.background1->rect->y, 4224, 1188 };
-			SDL_Rect br2 = {Game.assetsHardcoded.background2->rect->x, Game.assetsHardcoded.background1->rect->y, 4224, 1188 };
+			SDL_Rect br1 = {(int) x, Game.assetsHardcoded.background1->rect->y, Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
+			SDL_Rect br2 = {Game.assetsHardcoded.background2->rect->x, Game.assetsHardcoded.background1->rect->y, Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
 
 			/**
 			 * Wenn der Haupt-Hintergrund außerhalb des Bildschirmes ist, wird der zweite Hintergrund mit dem Haupt-Hintergrund ausgetauscht

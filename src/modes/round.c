@@ -83,6 +83,10 @@ void JB_generateBlock() {
 			!top && current->hitBox.y + ranY + ground->hitBox.h < Game.windowSize.h ?
 			current->hitBox.y + ranY :
 			current->hitBox.y - ranY;
+	if (ground->hitBox.y < 400) {
+		ground->hitBox.y += 400;
+	}
+
 	ground->assets = JB_new_Image("assets/sprites/ground.png");
 	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
 
