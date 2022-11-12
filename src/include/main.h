@@ -42,10 +42,12 @@ extern struct JB_Game_Struct {
  	* die Ausmaße des Fensters
  	*/
 	SDL_Rect windowSize;
+	double bgOffsetX;
 
 	struct {
 		bool aHeld;
 		bool dHeld;
+		bool spaceHeld;
 	} controls;
 
 	/**
@@ -63,7 +65,8 @@ extern struct JB_Game_Struct {
 	 */
 	struct JB_GameModeData data;
 	struct {
-		JB_Asset* background;
+		JB_Asset* background1;
+		JB_Asset* background2;
 		JB_Asset* title;
 		JB_Asset* fps;
 	} assetsHardcoded;
@@ -92,6 +95,7 @@ void JB_quit();
 void JB_onError(char* position);
 void JB_DestroyGameObjects(JB_GameObject* gameObject);
 void JB_DestroyAssets(JB_Asset* assets);
+void JB_checkBackground();
 
 int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event);
 bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2);

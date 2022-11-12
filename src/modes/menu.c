@@ -15,14 +15,14 @@ void JB_changeModeToMenu(bool pause) {
 	button3->onclick = JB_quit;
 	JB_new_MenuButton(button3, "Exit");
 
-	JB_Button* button2 = calloc(1, sizeof *button2);
+/*	JB_Button* button2 = calloc(1, sizeof *button2);
 	button2->onclick = JB_changeModeToLevelEditor;
 	button2->next = button3;
-	JB_new_MenuButton(button2, "Level Editor - Alpha");
+	JB_new_MenuButton(button2, "Level Editor - Alpha");*/
 
 	JB_Button* button1 = calloc(1, sizeof *button1);
 	button1->onclick = JB_changeModeToRound;
-	button1->next = button2;
+	button1->next = button3;
 	JB_new_MenuButton(button1, pause ? "Resume Game" : "Start Game");
 
 	Game.buttons[JB_MODE_MENU] = button1;

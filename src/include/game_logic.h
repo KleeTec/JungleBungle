@@ -29,6 +29,7 @@ void JB_onTestButtonClick(JB_Button* this);
 void JB_changeModeToRound();
 void JB_render_round();
 void JB_handleEvents_round(SDL_Event* event);
+void JB_generateBlock();
 
 // Leveleditor
 void JB_changeModeToLevelEditor();

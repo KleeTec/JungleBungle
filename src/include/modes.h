@@ -64,6 +64,7 @@ struct JB_GameModeData {
 		int fallSpeed;
 		bool grounded;
 		int windowAdjustment;
+		int counter;
 	} round;
 	struct {
 		/**

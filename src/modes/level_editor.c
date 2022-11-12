@@ -37,7 +37,7 @@ void JB_render_levelEditor() {
 		SDL_Rect rect = current->rect;
 		rect.x += current->alignment.x;
 		rect.y += current->alignment.y;
-		SDL_SetRenderDrawColor(Game.renderer, 255, 255 * current->hover, 10, 255);
+		/*SDL_SetRenderDrawColor(Game.renderer, 255, 255 * current->hover, 10, 255);*/
 		SDL_RenderDrawRect(Game.renderer, &rect);
 		JB_renderAssets(current->assets);
 		current = current->next;
