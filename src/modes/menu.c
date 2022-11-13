@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <stdio.h>
 
 #include "../include/modes.h"
 #include "../include/game_logic.h"
@@ -25,6 +26,12 @@ void JB_changeModeToMenu(bool pause) {
 	button1->next = button3;
 	JB_new_MenuButton(button1, pause ? "Resume Game" : "Start Game");
 
+	char* s = calloc(12, sizeof *s);
+	sprintf(s, "Highscore: %i", Game.bestScore);
+	JB_updateAsset(Game.assetsHardcoded.pointCounter,
+				   (JB_Asset) { .string=s },
+				   JB_AssetUpdate_string);
+
 	Game.buttons[JB_MODE_MENU] = button1;
 	Game.modeType = JB_MODE_MENU;
 }
@@ -45,6 +52,7 @@ void JB_render_menu() {
 						   1200, 300 };
 	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
 	JB_renderAssets(Game.assetsHardcoded.title);
+	JB_renderAssets(Game.assetsHardcoded.pointCounter);
 
 	JB_Button* currentButton = Game.buttons[JB_MODE_MENU];
 	/**

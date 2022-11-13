@@ -6,6 +6,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <math.h>
 #include <time.h>
+#include <stdio.h>
 
 #include "include/main.h"
 #include "include/util.h"
@@ -27,6 +28,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 	// Spiel laden, Texturen in das Spiel laden, usw.
 	JB_init_game("Jungle Bungle");
 	srand(time(NULL));
+	JB_LoadData();
 	// am Anfang wird einmal gerendert, danach nur, wenn die entsprechende Zeit
 	// (Mindestzeit) abgelaufen ist, um Ressourcen zub schonen
 	long t1 = currentTimeMillis();
@@ -79,12 +81,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				Game.data.round.windowAdjustment = 0;
 				JB_DestroyGameObjects(Game.gameObjects);
 
-				Game.gameObjects = NULL;
-				JB_changeModeToMenu(false);
-
 				if (Game.bestScore < Game.data.round.counter) {
 					Game.bestScore = Game.data.round.counter;
 				}
+
+				JB_SaveData();
+
+				Game.gameObjects = NULL;
+				JB_changeModeToMenu(false);
 				continue;
 			}
 
@@ -313,6 +317,31 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		}
 		t2 = currentTimeMillis();
 	}
+}
+
+void JB_SaveData() {
+	FILE *file = fopen("data.jb", "w");
+	if (file == NULL) {
+		JB_onError("Konnte Datei nicht öffnen");
+	}
+
+	fwrite(&Game, sizeof(struct JB_Game_Struct), 1, file);
+	fclose(file);
+}
+
+void JB_LoadData() {
+	FILE *file;
+	struct JB_Game_Struct game;
+	file = fopen("data.jb", "r");
+	if (file == NULL) {
+		SDL_Log("Konnte Datei nicht öffnen");
+		return;
+	}
+
+	while(fread(&game, sizeof(struct JB_Game_Struct), 1, file)) {}
+	fclose(file);
+
+	Game.bestScore = game.bestScore;
 }
 
 bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {

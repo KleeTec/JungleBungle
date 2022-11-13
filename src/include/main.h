@@ -91,6 +91,8 @@ extern struct JB_Game_Struct {
 void JB_init_game(char* name);
 void JB_appendAsset(JB_Asset* asset);
 void JB_appendGameObject(JB_GameObject* gameObject);
+void JB_SaveData();
+void JB_LoadData();
 SDL_Texture* JB_loadImage(char* path);
 
 void JB_quit();
