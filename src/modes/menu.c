@@ -26,10 +26,16 @@ void JB_changeModeToMenu(bool pause) {
 	button1->next = button3;
 	JB_new_MenuButton(button1, pause ? "Resume Game" : "Start Game");
 
-	char* s = calloc(12, sizeof *s);
-	sprintf(s, "Highscore: %i", Game.bestScore);
+	char* s1 = calloc(12, sizeof *s1);
+	sprintf(s1, "Highscore: %i", Game.bestScore);
 	JB_updateAsset(Game.assetsHardcoded.pointCounter,
-				   (JB_Asset) { .string=s },
+				   (JB_Asset) { .string=s1 },
+				   JB_AssetUpdate_string);
+
+	char* s2 = calloc(12, sizeof *s2);
+	sprintf(s2, "Bananas: %i", Game.bananaScore);
+	JB_updateAsset(Game.assetsHardcoded.bananaCounter,
+				   (JB_Asset) { .string=s2 },
 				   JB_AssetUpdate_string);
 
 	Game.buttons[JB_MODE_MENU] = button1;
@@ -53,6 +59,7 @@ void JB_render_menu() {
 	JB_updateAsset(Game.assetsHardcoded.title, (JB_Asset) { .rect = &titleRect }, JB_AssetUpdate_rect);
 	JB_renderAssets(Game.assetsHardcoded.title);
 	JB_renderAssets(Game.assetsHardcoded.pointCounter);
+	JB_renderAssets(Game.assetsHardcoded.bananaCounter);
 
 	JB_Button* currentButton = Game.buttons[JB_MODE_MENU];
 	/**

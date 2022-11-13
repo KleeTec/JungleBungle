@@ -65,14 +65,17 @@ extern struct JB_Game_Struct {
 	 */
 	struct JB_GameModeData data;
 	int bestScore;
+	int bananaScore;
 	struct {
 		JB_Asset* background1;
 		JB_Asset* background2;
 		JB_Asset* title;
 		JB_Asset* fps;
 		JB_Asset* pointCounter;
+		JB_Asset* bananaCounter;
 	} assetsHardcoded;
 	JB_Asset* assets;
+	JB_GameObject* bananas;
 	JB_GameObject* gameObjects;
 	JB_Button* buttons[sizeof(enum JB_ModeType)];
 
@@ -91,6 +94,7 @@ extern struct JB_Game_Struct {
 void JB_init_game(char* name);
 void JB_appendAsset(JB_Asset* asset);
 void JB_appendGameObject(JB_GameObject* gameObject);
+void JB_removeBanana(JB_GameObject* banana);
 void JB_SaveData();
 void JB_LoadData();
 SDL_Texture* JB_loadImage(char* path);

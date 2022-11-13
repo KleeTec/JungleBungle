@@ -67,6 +67,7 @@ void JB_generateBlock() {
 	int ranY = rand() % 200;
 	bool top = rand() & 1;
 	bool extra = rand() & 1;
+	bool banana = rand() & 1;
 	bool vines = rand() & 1;
 
 	while(ranY * ranY + ranX * ranX > 650 * 650) {
@@ -103,6 +104,22 @@ void JB_generateBlock() {
 		extraObj->assets = JB_new_Image("assets/sprites/extra.png");
 		JB_updateAsset(extraObj->assets, (JB_Asset) { .rect=&extraObj->hitBox }, JB_AssetUpdate_rect);
 		ground = extraObj;
+	} else if (banana) {
+		int ranBananaX = rand() % (ground->hitBox.w );
+		JB_GameObject* newBanana = calloc(1, sizeof *newBanana);
+		newBanana->hitBox.w = 38;
+		newBanana->hitBox.h = 44;
+		newBanana->hitBox.x = ground->hitBox.x + ranBananaX;
+		newBanana->hitBox.y = ground->hitBox.y - newBanana->hitBox.h - 5;
+		newBanana->assets = JB_new_Image("assets/sprites/banana.png");
+		JB_updateAsset(newBanana->assets, (JB_Asset) { .rect=&newBanana->hitBox }, JB_AssetUpdate_rect);
+		JB_GameObject* banana = Game.bananas;
+		if (banana != NULL) {
+			while (banana->next) banana = banana->next;
+			banana->next = newBanana;
+		} else {
+			Game.bananas = newBanana;
+		}
 	}
 
 	if (vines){
@@ -131,7 +148,14 @@ void JB_render_round() {
 				   (JB_Asset) { .string=s },
 				   JB_AssetUpdate_string);
 
+	char* s2 = calloc(12, sizeof *s2);
+	sprintf(s2, "Bananas: %i", Game.bananaScore);
+	JB_updateAsset(Game.assetsHardcoded.bananaCounter,
+				   (JB_Asset) { .string=s2 },
+				   JB_AssetUpdate_string);
+
 	JB_renderAssets(Game.assetsHardcoded.pointCounter);
+	JB_renderAssets(Game.assetsHardcoded.bananaCounter);
 	JB_renderAssets(Game.assets);
 	JB_GameObject* currentObject = Game.gameObjects;
 	while(currentObject) {
@@ -142,6 +166,17 @@ void JB_render_round() {
 		}
 		currentObject = currentObject->next;
 	}
+
+	currentObject = Game.bananas;
+	while(currentObject) {
+		JB_renderAssets(currentObject->assets);
+		if (Game.data.round.showHitboxes){
+			SDL_SetRenderDrawColor(Game.renderer, 0, 255, 0, 255);
+			SDL_RenderDrawRect(Game.renderer, &currentObject->hitBox);
+		}
+		currentObject = currentObject->next;
+	}
+
 	if (Game.data.round.showHitboxes){
 		SDL_SetRenderDrawColor(Game.renderer, 0, 255, 0, 255);
 		SDL_RenderDrawRect(Game.renderer, &Game.data.round.player->hitBox);

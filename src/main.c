@@ -80,6 +80,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				player->motion.y = 0;
 				Game.data.round.windowAdjustment = 0;
 				JB_DestroyGameObjects(Game.gameObjects);
+				JB_DestroyGameObjects(Game.bananas);
 
 				if (Game.bestScore < Game.data.round.counter) {
 					Game.bestScore = Game.data.round.counter;
@@ -88,6 +89,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				JB_SaveData();
 
 				Game.gameObjects = NULL;
+				Game.bananas = NULL;
 				JB_changeModeToMenu(false);
 				continue;
 			}
@@ -171,6 +173,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 			if (objOut <= 1) {
 				JB_generateBlock();
+			}
+
+			currentObj = Game.bananas;
+			while(currentObj) {
+				/**
+				 * Kollision mit anderen Objekten
+				 */
+				if (!JB_checkCollision(newHitBox, currentObj->hitBox)) {
+					currentObj = currentObj->next;
+					continue;
+				}
+
+				/**
+				 * Entfernen der Banane
+				 */
+				JB_removeBanana(currentObj);
+				Game.bananaScore++;
+				break;
 			}
 
 			/**
@@ -263,6 +283,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				currentObj = currentObj->next;
 			}
 
+			currentObj = Game.bananas;
+			while(currentObj != NULL) {
+				currentObj->hitBox.x += newX - altNewX;
+				currentObj = currentObj->next;
+			}
+
 			/**
 			 * Die Bewegung wird nun auf die x-Koordinate des Hintergrundes angewendet. Allerdings bewegt sich dieser halb so schnell wie der Spieler
 			 */
@@ -319,6 +345,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 	}
 }
 
+void JB_removeBanana(JB_GameObject* banana) {
+	JB_GameObject* currentObj = Game.bananas;
+	if (currentObj == banana) {
+		Game.bananas = currentObj->next;
+		free(currentObj);
+	} else {
+		while(currentObj) {
+			if (currentObj->next == banana) {
+				currentObj->next = currentObj->next->next;
+				free(banana);
+				return;
+			}
+			currentObj = currentObj->next;
+		}
+	}
+}
+
 void JB_SaveData() {
 	FILE *file = fopen("data.jb", "w");
 	if (file == NULL) {
@@ -342,6 +385,7 @@ void JB_LoadData() {
 	fclose(file);
 
 	Game.bestScore = game.bestScore;
+	Game.bananaScore = game.bananaScore;
 }
 
 bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {
@@ -369,7 +413,7 @@ void JB_init_game(char* name) {
 		Game.window = SDL_CreateWindow(name,
 									   SDL_WINDOWPOS_CENTERED,
 									   SDL_WINDOWPOS_CENTERED, 1920, 1080,
-									   SDL_WINDOW_RESIZABLE/* | SDL_WINDOW_FULLSCREEN*/);
+									   0/* | SDL_WINDOW_FULLSCREEN*/);
 		if(Game.window == NULL) JB_onError("Create Window");
 		if(!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
 			JB_onError("Create Renderer");
@@ -416,7 +460,13 @@ void JB_init_game(char* name) {
 		Game.assetsHardcoded.pointCounter = JB_new_Text("Points: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
 		static SDL_Rect r2 = { 10, 10, 0, 0 };
 		JB_updateAsset(Game.assetsHardcoded.pointCounter,
-					   (JB_Asset) { .fontFitRect=true, .rect=&r2, .centered.x=true },
+					   (JB_Asset) { .fontFitRect=true, .rect=&r2 },
+					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
+
+		Game.assetsHardcoded.bananaCounter = JB_new_Text("Bananas: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
+		static SDL_Rect r3 = { 10, 40, 0, 0 };
+		JB_updateAsset(Game.assetsHardcoded.bananaCounter,
+					   (JB_Asset) { .fontFitRect=true, .rect=&r3 },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 	}
 
