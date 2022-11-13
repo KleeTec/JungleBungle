@@ -81,6 +81,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 				Game.gameObjects = NULL;
 				JB_changeModeToMenu(false);
+
+				if (Game.bestScore < Game.data.round.counter) {
+					Game.bestScore = Game.data.round.counter;
+				}
 				continue;
 			}
 
@@ -107,6 +111,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			bool grounded = false;
 			int objOut = 0;
 			while(currentObj != NULL) {
+				if (currentObj->hitBox.x > Game.windowSize.w) {
+					objOut++;
+				}
+
 				/**
 				 * Kollision mit anderen Objekten
 				 */
@@ -151,10 +159,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				if (currentObj->hitBox.y + currentObj->hitBox.h <= player->hitBox.y) {
 					player->motion.y = 0;
 					newY = currentObj->hitBox.y + currentObj->hitBox.h;
-				}
-
-				if (currentObj->hitBox.x > Game.windowSize.w) {
-					objOut++;
 				}
 
 				currentObj = currentObj->next;
@@ -304,7 +308,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			JB_renderAssets(Game.assetsHardcoded.background1);
 			JB_renderAssets(Game.assetsHardcoded.background2);
 			Game.renderFunctions[Game.modeType]();
-			JB_renderFPS();
+			// JB_renderFPS();
 			SDL_RenderPresent(Game.renderer);
 		}
 		t2 = currentTimeMillis();
@@ -373,10 +377,17 @@ void JB_init_game(char* name) {
 		JB_updateAsset(Game.assetsHardcoded.background2, (JB_Asset) { .rect=&br2 }, JB_AssetUpdate_rect);
 
 		Game.assetsHardcoded.title = JB_new_Image("assets/title.png");
-		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
-		static SDL_Rect r = { 10, 10, 0, 0 };
+
+/*		Game.assetsHardcoded.fps = JB_new_Text("FPS: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
+		static SDL_Rect r1 = { 10, 10, 0, 0 };
 		JB_updateAsset(Game.assetsHardcoded.fps,
-					   (JB_Asset) { .fontFitRect=true, .rect=&r },
+					   (JB_Asset) { .fontFitRect=true, .rect=&r1 },
+					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);*/
+
+		Game.assetsHardcoded.pointCounter = JB_new_Text("Points: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
+		static SDL_Rect r2 = { 10, 10, 0, 0 };
+		JB_updateAsset(Game.assetsHardcoded.pointCounter,
+					   (JB_Asset) { .fontFitRect=true, .rect=&r2, .centered.x=true },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 	}
 
@@ -522,6 +533,7 @@ void JB_quit() {
 	if(Game.assetsHardcoded.background1) JB_DestroyAssets(Game.assetsHardcoded.background1);
 	if(Game.assetsHardcoded.title) JB_DestroyAssets(Game.assetsHardcoded.title);
 	if(Game.assetsHardcoded.fps) JB_DestroyAssets(Game.assetsHardcoded.fps);
+	if(Game.assetsHardcoded.pointCounter) JB_DestroyAssets(Game.assetsHardcoded.pointCounter);
 	SDL_Log("Ressourcen erfolgreich gelöscht");
 
 	// exit

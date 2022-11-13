@@ -64,11 +64,13 @@ extern struct JB_Game_Struct {
 	 * Daten, die zu dem jeweiligen Modus gehören, nicht allgemein zum Spiel
 	 */
 	struct JB_GameModeData data;
+	int bestScore;
 	struct {
 		JB_Asset* background1;
 		JB_Asset* background2;
 		JB_Asset* title;
 		JB_Asset* fps;
+		JB_Asset* pointCounter;
 	} assetsHardcoded;
 	JB_Asset* assets;
 	JB_GameObject* gameObjects;

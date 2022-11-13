@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <stdio.h>
 #include "../include/things/game_objects.h"
 #include "../include/game_logic.h"
 #include "../include/main.h"
@@ -41,7 +42,8 @@ void JB_changeModeToRound() {
 	JB_generateBlock();
 	JB_generateBlock();
 
-	// TODO: Spieler an Bildschirmgröße anpassen
+	Game.data.round.counter = 0;
+
 	static JB_GameObject player = {};
 	player.hitBox.w = 132;
 	player.hitBox.h = 112;
@@ -119,9 +121,17 @@ void JB_generateBlock() {
 	}
 
 	current->next = ground;
+	Game.data.round.counter++;
 }
 
 void JB_render_round() {
+	char* s = calloc(12, sizeof *s);
+	sprintf(s, "Points: %i", Game.data.round.counter);
+	JB_updateAsset(Game.assetsHardcoded.pointCounter,
+				   (JB_Asset) { .string=s },
+				   JB_AssetUpdate_string);
+
+	JB_renderAssets(Game.assetsHardcoded.pointCounter);
 	JB_renderAssets(Game.assets);
 	JB_GameObject* currentObject = Game.gameObjects;
 	while(currentObject) {
