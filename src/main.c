@@ -29,8 +29,6 @@ struct JB_Game_Struct Game = {};
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) {
 	// Spiel laden, Texturen in das Spiel laden, usw.
 	JB_init_game("Jungle Bungle");
-	srand(time(NULL));
-	JB_LoadData();
 	// am Anfang wird einmal gerendert, danach nur, wenn die entsprechende Zeit
 	// (Mindestzeit) abgelaufen ist, um Ressourcen zub schonen
 	long t1 = currentTimeMillis();
@@ -49,13 +47,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
  		*/
 		{
 			SDL_GetWindowSize(Game.window, &Game.windowSize.w, &Game.windowSize.h);
-			if(SDL_PollEvent(&event)) Game.eventHandlerFunctions[Game.modeType](&event);
+			if (SDL_PollEvent(&event)) Game.eventHandlerFunctions[Game.modeType](&event);
 		}
 
 		/**
 		 * Ressourcen schonen
 		 */
-		if(restTime > 0) {
+		if (restTime > 0){
 			t2 = currentTimeMillis();
 			continue;
 		}
@@ -74,7 +72,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		 */
 		if(Game.modeType == JB_MODE_ROUND) {
 			JB_GameObject* player = Game.data.round.player;
-			if (player->hitBox.y > Game.windowSize.h) {
+			if (player->hitBox.y > Game.windowSize.h){
 				Game.data.round.fallSpeed = 0;
 				Game.controls.aHeld = false;
 				Game.controls.dHeld = false;
@@ -84,7 +82,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				JB_DestroyGameObjects(Game.gameObjects);
 				JB_DestroyGameObjects(Game.bananas);
 
-				if (Game.bestScore < Game.data.round.counter) {
+				if (Game.bestScore < Game.data.round.counter){
 					Game.bestScore = Game.data.round.counter;
 				}
 
@@ -97,18 +95,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			}
 
 			// wenn Knopf gedrückt
-			if(Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_SPEED) player->motion.x++;
-			if(Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_SPEED) player->motion.x--;
-			if(Game.controls.spaceHeld && player->motion.y == 0) {
-				if (Game.data.round.grounded) {
+			if (Game.controls.dHeld && player->motion.x < JB_MAX_MOTION_SPEED) player->motion.x++;
+			if (Game.controls.aHeld && player->motion.x > -JB_MAX_MOTION_SPEED) player->motion.x--;
+			if (Game.controls.spaceHeld && player->motion.y == 0){
+				if (Game.data.round.grounded){
 					Game.data.round.player->motion.y -= 20;
 					Game.data.round.grounded = false;
 				}
 			}
 
 			// wenn Knopf losgelassen
-			if(!Game.controls.dHeld && player->motion.x > 0) player->motion.x--;
-			if(!Game.controls.aHeld && player->motion.x < 0) player->motion.x++;
+			if (!Game.controls.dHeld && player->motion.x > 0) player->motion.x--;
+			if (!Game.controls.aHeld && player->motion.x < 0) player->motion.x++;
 
 			// Position aufgrund der Bewegung bestimmen
 			int newX = player->hitBox.x + player->motion.x;
@@ -119,14 +117,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			bool grounded = false;
 			int objOut = 0;
 			while(currentObj != NULL) {
-				if (currentObj->hitBox.x > Game.windowSize.w) {
+				if (currentObj->hitBox.x > Game.windowSize.w){
 					objOut++;
 				}
 
 				/**
 				 * Kollision mit anderen Objekten
 				 */
-				if (!JB_checkCollision(newHitBox, currentObj->hitBox)) {
+				if (!JB_checkCollision(newHitBox, currentObj->hitBox)){
 					currentObj = currentObj->next;
 					continue;
 				}
@@ -134,7 +132,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				/**
 				 * Kollision links am Objekt
 				 */
-				if (currentObj->hitBox.x >= player->hitBox.x + player->hitBox.w) {
+				if (currentObj->hitBox.x >= player->hitBox.x + player->hitBox.w){
 					player->motion.x = 0;
 					newX = currentObj->hitBox.x - player->hitBox.w;
 					currentObj = currentObj->next;
@@ -144,7 +142,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				/**
 				 * Kollision rechts am Objekt
 				 */
-				if (currentObj->hitBox.x + currentObj->hitBox.w <= player->hitBox.x) {
+				if (currentObj->hitBox.x + currentObj->hitBox.w <= player->hitBox.x){
 					player->motion.x = 0;
 					newX = currentObj->hitBox.x + currentObj->hitBox.w;
 					currentObj = currentObj->next;
@@ -154,7 +152,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				/**
 				 * Kollision oben am Objekt
 				 */
-				if (currentObj->hitBox.y >= player->hitBox.y + player->hitBox.h) {
+				if (currentObj->hitBox.y >= player->hitBox.y + player->hitBox.h){
 					grounded = true;
 					Game.data.round.fallSpeed = 0;
 					player->motion.y = 0;
@@ -164,7 +162,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				/**
 				 * Kollision unten am Objekt
 				 */
-				if (currentObj->hitBox.y + currentObj->hitBox.h <= player->hitBox.y) {
+				if (currentObj->hitBox.y + currentObj->hitBox.h <= player->hitBox.y){
 					player->motion.y = 0;
 					newY = currentObj->hitBox.y + currentObj->hitBox.h;
 				}
@@ -173,7 +171,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			}
 			Game.data.round.grounded = grounded;
 
-			if (objOut <= 1) {
+			if (objOut <= 1){
 				JB_generateBlock();
 			}
 
@@ -182,7 +180,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				/**
 				 * Kollision mit anderen Objekten
 				 */
-				if (!JB_checkCollision(newHitBox, currentObj->hitBox)) {
+				if (!JB_checkCollision(newHitBox, currentObj->hitBox)){
 					currentObj = currentObj->next;
 					continue;
 				}
@@ -199,28 +197,30 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			 * Simuliert die vertikale Bewegung des Hintergrundes
 			 */
 			int offY = Game.assetsHardcoded.background1->rect->y + 30;
-			if (newY < player->hitBox.y) {
+			if (newY < player->hitBox.y){
 				/**
 				 * Wenn sich der Spieler nach oben bewegt, wird der Hintergrund anhand einer Funktion nach unten bewegt
 				 * y=-(1/400)(x-120)^2+36
 				 */
 				Game.bgOffsetX++;
-				double y = (-0.0025)*pow(Game.bgOffsetX-120, 2) + 36;
+				double y = ( -0.0025 ) * pow(Game.bgOffsetX - 120, 2) + 36;
 				/**
 				 * Zu kleine Bewegungen ausschließen
 				 */
 				y++;
 
-				SDL_Rect br = {Game.assetsHardcoded.background1->rect->x, -30 + (int) y, Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
+				SDL_Rect br = { Game.assetsHardcoded.background1->rect->x, -30 + (int) y,
+								Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
 				JB_updateAsset(Game.assetsHardcoded.background1, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
-			} else if (offY > 0) {
+			} else if (offY > 0){
 				/**
 				 * Wenn der Spieler nach unten fällt:<br/>
 				 * Das selbe wie bei der Bewegung nach oben nur umgekehrt
 				 */
 				Game.bgOffsetX--;
-				double y = (-0.0025)*pow(Game.bgOffsetX-120, 2) + 36;
-				SDL_Rect br = {Game.assetsHardcoded.background1->rect->x, -30 + (int) y, Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
+				double y = ( -0.0025 ) * pow(Game.bgOffsetX - 120, 2) + 36;
+				SDL_Rect br = { Game.assetsHardcoded.background1->rect->x, -30 + (int) y,
+								Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
 				JB_updateAsset(Game.assetsHardcoded.background1, (JB_Asset) { .rect=&br }, JB_AssetUpdate_rect);
 			}
 
@@ -229,7 +229,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			 * Die Grundfunktionsgleichung ist:<br/>y=(JB_MAX_MOTION_SPEED * 10/-x) + JB_MAX_MOTION_SPEED + 1
 			 */
 			int altNewX = newX;
-			if (Game.data.round.windowAdjustment >= 0 && (( Game.controls.dHeld && !Game.controls.aHeld) || player->motion.x > 0)) {
+			if (Game.data.round.windowAdjustment >= 0 &&
+				(( Game.controls.dHeld && !Game.controls.aHeld ) || player->motion.x > 0 )){
 				/**
 				 * Grundbedingung: Der Spieler hat sich davor nicht bewegt oder er bewegt sich nach rechts.<br/>
 				 * Dazu müssen noch Nebenbedingungen erfüllt sein, damit es zu keinen Fehlern oder überschneidungen kommt
@@ -239,12 +240,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				/**
 				 * Überprüfung, ob der Spieler davor stand oder nicht. Das ist nötig, da die Grundfunktion bei werten unter JB_MAX_MOTION_SPEED + 1 im negativen Bereich liegt
 				 */
-				Game.data.round.windowAdjustment = (Game.data.round.windowAdjustment == 1) ? JB_MAX_MOTION_SPEED + 1 : Game.data.round.windowAdjustment;
+				Game.data.round.windowAdjustment = ( Game.data.round.windowAdjustment == 1 ) ? JB_MAX_MOTION_SPEED + 1
+																							 : Game.data.round.windowAdjustment;
 
 				/**
 				 * Berechnung der tatsächlich Dargestellten Bewegung des Spielers. windowAdjustment wird dabei als x-Koordinate verwendet
 				 */
-				int adjY = (JB_MAX_MOTION_SPEED * 10/-Game.data.round.windowAdjustment) + JB_MAX_MOTION_SPEED + 1;
+				int adjY = ( JB_MAX_MOTION_SPEED * 10 / -Game.data.round.windowAdjustment ) + JB_MAX_MOTION_SPEED + 1;
 
 				/**
 				 * Wenn der Spieler im Bild schon zum erlaubten Bereich bewegt wurde, bleibt die Position konstant
@@ -256,17 +258,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				 * Die Bewegung des Spielers wird durchgeführt
 				 */
 				newX -= adjY;
-			} else if (Game.data.round.windowAdjustment <= 0 && ((Game.controls.aHeld && !Game.controls.dHeld) || player->motion.x < 0)) {
+			} else if (Game.data.round.windowAdjustment <= 0 &&
+					   (( Game.controls.aHeld && !Game.controls.dHeld ) || player->motion.x < 0 )){
 				/**
 				 * Das selbe wie bei der Bewegung nach rechts nur umgekehrt
 				 */
 				Game.data.round.windowAdjustment--;
-				Game.data.round.windowAdjustment = (Game.data.round.windowAdjustment == -1) ? -1 - JB_MAX_MOTION_SPEED : Game.data.round.windowAdjustment;
-				int adjY = (JB_MAX_MOTION_SPEED * 10/Game.data.round.windowAdjustment) + JB_MAX_MOTION_SPEED + 1;
+				Game.data.round.windowAdjustment = ( Game.data.round.windowAdjustment == -1 ) ? -1 - JB_MAX_MOTION_SPEED
+																							  : Game.data.round.windowAdjustment;
+				int adjY = ( JB_MAX_MOTION_SPEED * 10 / Game.data.round.windowAdjustment ) + JB_MAX_MOTION_SPEED + 1;
 				if (adjY > JB_MAX_MOTION_SPEED) adjY = JB_MAX_MOTION_SPEED;
 				if (adjY > player->hitBox.x - newX) adjY = player->hitBox.x - newX;
 				newX += adjY;
-			} else if (Game.data.round.windowAdjustment != 0) {
+			} else if (Game.data.round.windowAdjustment != 0){
 				/**
 				 * Wenn der Spieler nicht mehr bewegt wird, wird windowAdjustment nach und nach wieder auf 0 gesetzt
 				 */
@@ -294,21 +298,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			/**
 			 * Die Bewegung wird nun auf die x-Koordinate des Hintergrundes angewendet. Allerdings bewegt sich dieser halb so schnell wie der Spieler
 			 */
-			double x = Game.assetsHardcoded.background1->rect->x + (double) (newX - altNewX) / 2;
-			SDL_Rect br1 = {(int) x, Game.assetsHardcoded.background1->rect->y, Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
-			SDL_Rect br2 = {Game.assetsHardcoded.background2->rect->x, Game.assetsHardcoded.background1->rect->y, Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
+			double x = Game.assetsHardcoded.background1->rect->x + (double) ( newX - altNewX ) / 2;
+			SDL_Rect br1 = { (int) x, Game.assetsHardcoded.background1->rect->y,
+							 Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
+			SDL_Rect br2 = { Game.assetsHardcoded.background2->rect->x, Game.assetsHardcoded.background1->rect->y,
+							 Game.assetsHardcoded.background1->rect->w, Game.assetsHardcoded.background1->rect->h };
 
 			/**
 			 * Wenn der Haupt-Hintergrund außerhalb des Bildschirmes ist, wird der zweite Hintergrund mit dem Haupt-Hintergrund ausgetauscht
 			 */
-			if (Game.assetsHardcoded.background1->rect->x > Game.windowSize.w || Game.assetsHardcoded.background1->rect->x + Game.assetsHardcoded.background1->rect->w < 0) {
+			if (Game.assetsHardcoded.background1->rect->x > Game.windowSize.w ||
+				Game.assetsHardcoded.background1->rect->x + Game.assetsHardcoded.background1->rect->w < 0){
 				br1.x = br2.x;
 			}
 
 			/**
 			 * Je nach der Position des Haupt-Hintergrundes wird der zweite Hintergrund an die richtige Stelle gesetzt
 			 */
-			if (Game.assetsHardcoded.background1->rect->x > - (Game.assetsHardcoded.background1->rect->w / 2)) {
+			if (Game.assetsHardcoded.background1->rect->x > -( Game.assetsHardcoded.background1->rect->w / 2 )){
 				br2.x = br1.x - br2.w;
 			} else {
 				br2.x = br1.x + br2.w;
@@ -320,12 +327,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			JB_updateAsset(Game.assetsHardcoded.background1, (JB_Asset) { .rect=&br1 }, JB_AssetUpdate_rect);
 			JB_updateAsset(Game.assetsHardcoded.background2, (JB_Asset) { .rect=&br2 }, JB_AssetUpdate_rect);
 
-			if(newX < Game.windowSize.w - player->hitBox.w && newX > 0) {
+			if (newX < Game.windowSize.w - player->hitBox.w && newX > 0){
 				player->hitBox.x = newX;
 				player->assets->rect->x = newX;
 			}
 
-			if(newY > 0) {
+			if (newY > 0){
 				player->hitBox.y = newY;
 				player->assets->rect->y = newY;
 			}
@@ -349,12 +356,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 void JB_removeBanana(JB_GameObject* banana) {
 	JB_GameObject* currentObj = Game.bananas;
-	if (currentObj == banana) {
+	if (currentObj == banana){
 		Game.bananas = currentObj->next;
 		free(currentObj);
 	} else {
 		while(currentObj) {
-			if (currentObj->next == banana) {
+			if (currentObj->next == banana){
 				currentObj->next = currentObj->next->next;
 				free(banana);
 				return;
@@ -412,10 +419,10 @@ void JB_LoadData() {
 }
 
 bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {
-	if(hitBox1.x + hitBox1.w < hitBox2.x) return false;
-	if(hitBox1.x > hitBox2.x + hitBox2.w) return false;
-	if(hitBox1.y + hitBox1.h < hitBox2.y) return false;
-	if(hitBox1.y > hitBox2.y + hitBox2.h) return false;
+	if (hitBox1.x + hitBox1.w < hitBox2.x) return false;
+	if (hitBox1.x > hitBox2.x + hitBox2.w) return false;
+	if (hitBox1.y + hitBox1.h < hitBox2.y) return false;
+	if (hitBox1.y > hitBox2.y + hitBox2.h) return false;
 	return true;
 }
 
@@ -431,14 +438,14 @@ void JB_init_game(char* name) {
 	{
 		// TODO: Window Size automatisch vom Monitor übernehmen
 		Game.name = name;
-		if(( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_onError("SDL_Init");
-		if(( Game.error_code = TTF_Init())) JB_onError("TTF_Init");
+		if (( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_onError("SDL_Init");
+		if (( Game.error_code = TTF_Init())) JB_onError("TTF_Init");
 		Game.window = SDL_CreateWindow(name,
 									   SDL_WINDOWPOS_CENTERED,
 									   SDL_WINDOWPOS_CENTERED, 1920, 1080,
 									   0/* | SDL_WINDOW_FULLSCREEN*/);
-		if(Game.window == NULL) JB_onError("Create Window");
-		if(!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
+		if (Game.window == NULL) JB_onError("Create Window");
+		if (!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
 			JB_onError("Create Renderer");
 	}
 
@@ -461,7 +468,7 @@ void JB_init_game(char* name) {
  	*/
 	{
 		Game.error_code = !IMG_Init(IMG_INIT_PNG);
-		if(Game.error_code) JB_onError("IMG init");
+		if (Game.error_code) JB_onError("IMG init");
 		Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
 
 		Game.assetsHardcoded.background1 = JB_new_Image("assets/sprites/background.png");
@@ -480,13 +487,15 @@ void JB_init_game(char* name) {
 					   (JB_Asset) { .fontFitRect=true, .rect=&r1 },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);*/
 
-		Game.assetsHardcoded.pointCounter = JB_new_Text("Points: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
+		Game.assetsHardcoded.pointCounter = JB_new_Text("Points: 0", (SDL_Colour) { 255, 255, 255, 255 },
+														Game.fonts.defaultFont);
 		static SDL_Rect r2 = { 10, 10, 0, 0 };
 		JB_updateAsset(Game.assetsHardcoded.pointCounter,
 					   (JB_Asset) { .fontFitRect=true, .rect=&r2 },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 
-		Game.assetsHardcoded.bananaCounter = JB_new_Text("Bananas: 0", (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
+		Game.assetsHardcoded.bananaCounter = JB_new_Text("Bananas: 0", (SDL_Colour) { 255, 255, 255, 255 },
+														 Game.fonts.defaultFont);
 		static SDL_Rect r3 = { 10, 40, 0, 0 };
 		JB_updateAsset(Game.assetsHardcoded.bananaCounter,
 					   (JB_Asset) { .fontFitRect=true, .rect=&r3 },
@@ -504,7 +513,7 @@ void JB_init_game(char* name) {
 }
 
 void JB_appendAsset(JB_Asset* asset) {
-	if(Game.assets == NULL) {
+	if (Game.assets == NULL){
 		Game.assets = asset;
 		return;
 	}
@@ -514,7 +523,7 @@ void JB_appendAsset(JB_Asset* asset) {
 }
 
 void JB_appendGameObject(JB_GameObject* gameObject) {
-	if(Game.gameObjects == NULL) {
+	if (Game.gameObjects == NULL){
 		Game.gameObjects = gameObject;
 		return;
 	}
@@ -531,9 +540,9 @@ void JB_appendGameObject(JB_GameObject* gameObject) {
  */
 SDL_Texture* JB_loadImage(char* path) {
 	SDL_Texture* img = IMG_LoadTexture(Game.renderer, path);
-	if(img == NULL) {
+	if (img == NULL){
 		img = IMG_LoadTexture(Game.renderer, appendChar("../", path));
-		if(img == NULL) JB_onError("Texture loading");
+		if (img == NULL) JB_onError("Texture loading");
 	}
 	return img;
 }
@@ -548,8 +557,8 @@ SDL_Texture* JB_loadImage(char* path) {
  * </ul>
  */
 int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event) {
-	if(event->type == SDL_QUIT) JB_quit();
-	if(event->type == SDL_WINDOWEVENT) {
+	if (event->type == SDL_QUIT) JB_quit();
+	if (event->type == SDL_WINDOWEVENT){
 		switch(event->window.event) {
 			case SDL_WINDOWEVENT_NONE:
 				SDL_Log("SDL_WINDOWEVENT_NONE");
@@ -609,16 +618,16 @@ int JB_filterEvents(__attribute__((unused)) void* _, SDL_Event* event) {
 }
 
 void JB_DestroyAssets(JB_Asset* assets) {
-	if(!assets) return;
-	if(assets->next) JB_DestroyAssets(assets->next);
+	if (!assets) return;
+	if (assets->next) JB_DestroyAssets(assets->next);
 	SDL_DestroyTexture(assets->texture);
 	TTF_CloseFont(assets->font);
 	free(assets);
 }
 
 void JB_DestroyGameObjects(JB_GameObject* gameObject) {
-	if(gameObject == NULL) return;
-	if(gameObject->next != NULL) JB_DestroyGameObjects(gameObject->next);
+	if (gameObject == NULL) return;
+	if (gameObject->next != NULL) JB_DestroyGameObjects(gameObject->next);
 	JB_DestroyAssets(gameObject->assets);
 }
 
@@ -630,12 +639,12 @@ void JB_quit() {
 	Game.running = false;
 
 	// destroy resources
-	if(Game.gameObjects) JB_DestroyGameObjects(Game.gameObjects);
-	if(Game.assets) JB_DestroyAssets(Game.assets);
-	if(Game.assetsHardcoded.background1) JB_DestroyAssets(Game.assetsHardcoded.background1);
-	if(Game.assetsHardcoded.title) JB_DestroyAssets(Game.assetsHardcoded.title);
-	if(Game.assetsHardcoded.fps) JB_DestroyAssets(Game.assetsHardcoded.fps);
-	if(Game.assetsHardcoded.pointCounter) JB_DestroyAssets(Game.assetsHardcoded.pointCounter);
+	if (Game.gameObjects) JB_DestroyGameObjects(Game.gameObjects);
+	if (Game.assets) JB_DestroyAssets(Game.assets);
+	if (Game.assetsHardcoded.background1) JB_DestroyAssets(Game.assetsHardcoded.background1);
+	if (Game.assetsHardcoded.title) JB_DestroyAssets(Game.assetsHardcoded.title);
+	if (Game.assetsHardcoded.fps) JB_DestroyAssets(Game.assetsHardcoded.fps);
+	if (Game.assetsHardcoded.pointCounter) JB_DestroyAssets(Game.assetsHardcoded.pointCounter);
 	SDL_Log("Ressourcen erfolgreich gelöscht");
 
 	// exit
