@@ -7,6 +7,8 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #include "include/main.h"
 #include "include/util.h"
@@ -362,30 +364,51 @@ void JB_removeBanana(JB_GameObject* banana) {
 	}
 }
 
+/**
+ * Daten werden im Big-Endian-Format gespeichert.
+ * Ein Integer ist 4 Bytes groß, also quasi 4 char.
+ * Das erste Byte wird mit den größten 8 bit des integers behandelt.
+ */
 void JB_SaveData() {
-	FILE *file = fopen("data.jb", "w");
-	if (file == NULL) {
-		JB_onError("Konnte Datei nicht öffnen");
-	}
-
-	fwrite(&Game, sizeof(struct JB_Game_Struct), 1, file);
+	// Die Spielstände sollen im gleichen ORdner wie die Assets gespeichert werden.
+	char* path = "saves";
+	DIR* assetsDir = opendir("assets");
+	if (!assetsDir) path = "../saves";
+	// ist der saves-Ordner noch nicht vorhanden, wird er erstellt.
+	DIR* dir = opendir(path);
+	if (!dir) mkdir(path, 0777);
+	// Die Datei wird automatisch erstellt, wenn sie nicht existiert
+	// Der Dateimodus ist wb+ ==> write binary, create if not existing
+	FILE* file = fopen("saves/data.jb", "wb+");
+	struct JB_SaveData saveData;
+	saveData.bananaScore[0] = (char) ( Game.bananaScore >> 24 );
+	saveData.bananaScore[1] = (char) ( Game.bananaScore >> 16 );
+	saveData.bananaScore[2] = (char) ( Game.bananaScore >> 8 );
+	saveData.bananaScore[3] = (char) Game.bananaScore;
+	fwrite(&saveData, sizeof saveData, 1, file);
 	fclose(file);
 }
 
 void JB_LoadData() {
-	FILE *file;
-	struct JB_Game_Struct game;
-	file = fopen("data.jb", "r");
-	if (file == NULL) {
+	FILE* file;
+	struct JB_SaveData saveData;
+	file = fopen("saves/data.jb", "r");
+	if (file == NULL){
 		SDL_Log("Konnte Datei nicht öffnen");
 		return;
 	}
-
-	while(fread(&game, sizeof(struct JB_Game_Struct), 1, file)) {}
+	fread(&saveData, sizeof saveData, 1, file);
 	fclose(file);
-
-	Game.bestScore = game.bestScore;
-	Game.bananaScore = game.bananaScore;
+	Game.bestScore =
+			(int) ( saveData.bestScore[0] << 24 )
+			+ ( saveData.bestScore[1] << 16 )
+			+ ( saveData.bestScore[2] << 8 )
+			+ ( saveData.bestScore[3] );
+	Game.bananaScore =
+			(int) ( saveData.bananaScore[0] << 24 )
+			+ ( saveData.bananaScore[1] << 16 )
+			+ ( saveData.bananaScore[2] << 8 )
+			+ ( saveData.bananaScore[3] );
 }
 
 bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {

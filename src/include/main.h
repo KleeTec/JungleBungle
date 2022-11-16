@@ -90,6 +90,14 @@ extern struct JB_Game_Struct {
 	void (* eventHandlerFunctions[sizeof(enum JB_ModeType)])(SDL_Event* event);
 } Game;
 
+/**
+ * Zahlen werden im Big-Endian-Format gespeichert. Ein Integer nimmt hier 4 Bytes ein.
+ */
+struct JB_SaveData {
+	char bestScore[4];
+	char bananaScore[4];
+};
+
 
 void JB_init_game(char* name);
 void JB_appendAsset(JB_Asset* asset);
