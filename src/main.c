@@ -1,14 +1,15 @@
-#include <unistd.h>
 #include <stdbool.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "include/main.h"
 #include "include/util.h"
@@ -37,6 +38,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 	SDL_Event event;
 	Game.renderFunctions[Game.modeType]();
+
+//	Game.data.round.showHitboxes = true;
+	char buffer[1024];
+	getcwd(buffer, sizeof buffer);
+	SDL_Log("CWD: %s", buffer);
 
 	while(Game.running) {
 		double delta_time = (double) ( t2 - t1 );
@@ -70,9 +76,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		/**
 		 * Positionsberechnung der GameObjects
 		 */
-		if(Game.modeType == JB_MODE_ROUND) {
+		if (Game.modeType == JB_MODE_ROUND){
+			/**
+			 * Musik abspielen
+			 */
+			{
+				if (Game.sounds.music){
+					if (!Mix_PlayingMusic()) Mix_PlayMusic(Game.sounds.music, -1);
+					if (Mix_PausedMusic()) Mix_ResumeMusic();
+				}
+			}
 			JB_GameObject* player = Game.data.round.player;
+			/**
+			 * Spieler stirbt
+			 */
 			if (player->hitBox.y > Game.windowSize.h){
+				int channel = Mix_PlayChannel(-1, Game.sounds.sterben[rand() & 1], false);
 				Game.data.round.fallSpeed = 0;
 				Game.controls.aHeld = false;
 				Game.controls.dHeld = false;
@@ -81,15 +100,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				Game.data.round.windowAdjustment = 0;
 				JB_DestroyGameObjects(Game.gameObjects);
 				JB_DestroyGameObjects(Game.bananas);
+				Game.gameObjects = NULL;
+				Game.bananas = NULL;
 
 				if (Game.bestScore < Game.data.round.counter){
 					Game.bestScore = Game.data.round.counter;
 				}
-
 				JB_SaveData();
-
-				Game.gameObjects = NULL;
-				Game.bananas = NULL;
+				// warten, bis das Sterben-Geräusch zu Ende gespielt wurde
+				while(Mix_Playing(channel));
 				JB_changeModeToMenu(false);
 				continue;
 			}
@@ -189,6 +208,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 				 * Entfernen der Banane
 				 */
 				JB_removeBanana(currentObj);
+				Mix_PlayChannel(-1, Game.sounds.essen, 0);
 				Game.bananaScore++;
 				break;
 			}
@@ -286,12 +306,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			currentObj = Game.gameObjects;
 			while(currentObj != NULL) {
 				currentObj->hitBox.x += newX - altNewX;
+				currentObj->assetsBox.x = currentObj->hitBox.x;
 				currentObj = currentObj->next;
 			}
 
 			currentObj = Game.bananas;
 			while(currentObj != NULL) {
 				currentObj->hitBox.x += newX - altNewX;
+				currentObj->assetsBox.x = currentObj->hitBox.x;
 				currentObj = currentObj->next;
 			}
 
@@ -329,12 +351,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
 			if (newX < Game.windowSize.w - player->hitBox.w && newX > 0){
 				player->hitBox.x = newX;
-				player->assets->rect->x = newX;
+				player->assetsBox.x = newX;
+				// player->assets->rect->x = newX;
 			}
 
 			if (newY > 0){
 				player->hitBox.y = newY;
-				player->assets->rect->y = newY;
+				player->assetsBox.y = newY;
+				// player->assets->rect->y = newY;
 			}
 		}
 
@@ -352,6 +376,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 		}
 		t2 = currentTimeMillis();
 	}
+	return 0;
 }
 
 void JB_removeBanana(JB_GameObject* banana) {
@@ -392,6 +417,10 @@ void JB_SaveData() {
 	saveData.bananaScore[1] = (char) ( Game.bananaScore >> 16 );
 	saveData.bananaScore[2] = (char) ( Game.bananaScore >> 8 );
 	saveData.bananaScore[3] = (char) Game.bananaScore;
+	saveData.bestScore[0] = (char) ( Game.bestScore >> 24 );
+	saveData.bestScore[1] = (char) ( Game.bestScore >> 16 );
+	saveData.bestScore[2] = (char) ( Game.bestScore >> 8 );
+	saveData.bestScore[3] = (char) Game.bestScore;
 	fwrite(&saveData, sizeof saveData, 1, file);
 	fclose(file);
 }
@@ -429,7 +458,6 @@ bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {
 /**
  * Erstellt ein neues Spiel. Diese Funktion sollte nur einmal aufgerufen werden.
  * @param name ==> der Name des Spiels
- * @return Referenz zum neuen Spiel-Struct
  */
 void JB_init_game(char* name) {
 	/**
@@ -443,7 +471,7 @@ void JB_init_game(char* name) {
 		Game.window = SDL_CreateWindow(name,
 									   SDL_WINDOWPOS_CENTERED,
 									   SDL_WINDOWPOS_CENTERED, 1920, 1080,
-									   0/* | SDL_WINDOW_FULLSCREEN*/);
+									   SDL_WINDOW_RESIZABLE);
 		if (Game.window == NULL) JB_onError("Create Window");
 		if (!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
 			JB_onError("Create Renderer");
@@ -501,6 +529,25 @@ void JB_init_game(char* name) {
 					   (JB_Asset) { .fontFitRect=true, .rect=&r3 },
 					   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_rect);
 	}
+
+	/**
+	 * Musik laden
+	 */
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+	Game.sounds.music = Mix_LoadMUS("assets/sounds/JungleBungle.mp3");
+	if (Game.sounds.music == NULL) SDL_Log("Musik konnte nicht geladen werden,");
+
+	Game.sounds.essen = Mix_LoadWAV("assets/sounds/essen.wav");
+	if (Game.sounds.essen == NULL) SDL_Log("essem-Geräusch konnte nicht geladen werden,");
+
+	Game.sounds.sterben[0] = Mix_LoadWAV("assets/sounds/sterben.wav");
+	if (Game.sounds.essen == NULL) SDL_Log("sterben1-Geräusch konnte nicht geladen werden,");
+
+	Game.sounds.sterben[1] = Mix_LoadWAV("assets/sounds/sterben2.wav");
+	if (Game.sounds.essen == NULL) SDL_Log("sterben2-Geräusch konnte nicht geladen werden,");
+
+	srand(time(NULL));
+	JB_LoadData();
 
 	/**
 	 * Zuletzt wird ein Filter eingebaut, sodass das Spiel immer und jederzeit geschlossen werden kann.

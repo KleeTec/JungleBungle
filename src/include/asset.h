@@ -29,7 +29,12 @@ typedef struct JB_Asset {
 	/**
 	 *
 	 */
-	SDL_Rect* clip;
+	SDL_Rect clipSize;
+
+	long timePerClip;
+	long clipStartTime;
+	int maxClips;
+	int clipIndex;
 	/**
 	 * die tatsächliche SDL-Textur
 	 */

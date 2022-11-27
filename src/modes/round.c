@@ -1,6 +1,7 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-msc50-cpp"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <stdio.h>
 #include "../include/things/game_objects.h"
 #include "../include/game_logic.h"
@@ -45,30 +46,30 @@ void JB_changeModeToRound() {
 	Game.data.round.counter = 0;
 
 	static JB_GameObject player = {};
-	player.hitBox.w = 132;
-	player.hitBox.h = 112;
+	player.hitBox.w = 120;
+	player.hitBox.h = 110;
 	player.hitBox.x = ( Game.windowSize.w - player.hitBox.w ) / 2;
 	player.hitBox.y = ( Game.windowSize.h - player.hitBox.h ) / 2;
 	player.assets = JB_new_Image("assets/sprites/player.png");
-	static SDL_Rect size = {};
-	size.x = player.hitBox.x;
-	size.y = player.hitBox.y;
-	size.w = 132;
-	size.h = 112;
-	JB_updateAsset(player.assets, (JB_Asset) { .rect=&size },
-				   JB_AssetUpdate_rect);
-	Game.data.round.player = &player;
+	player.assets->timePerClip = 1000;
+	player.assets->maxClips = 5;
+	player.assetsBox.x = player.hitBox.x - 7;
+	player.assetsBox.y = player.hitBox.y - 5;
+	player.assetsBox.w = player.hitBox.w + 30;
+	player.assetsBox.h = player.hitBox.h + 5;
+	player.assets->clipSize = (SDL_Rect) { 0, 0, 33, 28 };
 
+	Game.data.round.player = &player;
 	Game.modeType = JB_MODE_ROUND;
 }
 
 void JB_generateBlock() {
 	int ranX = 300 + rand() % 600;
 	int ranY = rand() % 200;
-	bool top = rand() & 1;
-	bool extra = rand() & 1;
-	bool banana = rand() & 1;
-	bool vines = rand() & 1;
+	bool spawnTop = rand() & 1;
+	bool spawnExtra = rand() & 1;
+	bool spawnBanana = rand() & 1;
+	bool spawnVines = rand() & 1;
 
 	while(ranY * ranY + ranX * ranX > 650 * 650) {
 		ranX = rand() % 600 + 250;
@@ -83,17 +84,17 @@ void JB_generateBlock() {
 	ground->hitBox.h = current->hitBox.h;
 	ground->hitBox.x = current->hitBox.x + ranX;
 	ground->hitBox.y =
-			!top && current->hitBox.y + ranY + ground->hitBox.h < Game.windowSize.h ?
+			!spawnTop && current->hitBox.y + ranY + ground->hitBox.h < Game.windowSize.h ?
 			current->hitBox.y + ranY :
 			current->hitBox.y - ranY;
-	if (ground->hitBox.y < 400) {
+	if (ground->hitBox.y < 400){
 		ground->hitBox.y += 400;
 	}
-
 	ground->assets = JB_new_Image("assets/sprites/ground.png");
-	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->hitBox }, JB_AssetUpdate_rect);
+	ground->assetsBox = ground->hitBox;
+	JB_updateAsset(ground->assets, (JB_Asset) { .rect=&ground->assetsBox }, JB_AssetUpdate_rect);
 
-	if (extra){
+	if (spawnExtra){
 		int ranExtraX = rand() % ( ground->hitBox.w - 80 );
 		JB_GameObject* extraObj = calloc(1, sizeof *extraObj);
 		extraObj->hitBox.w = 80;
@@ -102,28 +103,34 @@ void JB_generateBlock() {
 		extraObj->hitBox.y = ground->hitBox.y - extraObj->hitBox.h;
 		extraObj->next = ground;
 		extraObj->assets = JB_new_Image("assets/sprites/extra.png");
-		JB_updateAsset(extraObj->assets, (JB_Asset) { .rect=&extraObj->hitBox }, JB_AssetUpdate_rect);
+		extraObj->assetsBox = extraObj->hitBox;
+		extraObj->assetsBox.h += 20;
+		extraObj->assetsBox.w += 20;
+		extraObj->assetsBox.x -= 50;
+		extraObj->assetsBox.y -= 15;
+		JB_updateAsset(extraObj->assets, (JB_Asset) { .rect=&extraObj->assetsBox }, JB_AssetUpdate_rect);
 		ground = extraObj;
-	} else if (banana) {
-		int ranBananaX = rand() % (ground->hitBox.w );
+	} else if (spawnBanana){
+		int ranBananaX = rand() % ( ground->hitBox.w );
 		JB_GameObject* newBanana = calloc(1, sizeof *newBanana);
 		newBanana->hitBox.w = 38;
 		newBanana->hitBox.h = 44;
 		newBanana->hitBox.x = ground->hitBox.x + ranBananaX;
 		newBanana->hitBox.y = ground->hitBox.y - newBanana->hitBox.h - 5;
 		newBanana->assets = JB_new_Image("assets/sprites/banana.png");
-		JB_updateAsset(newBanana->assets, (JB_Asset) { .rect=&newBanana->hitBox }, JB_AssetUpdate_rect);
+		newBanana->assetsBox = newBanana->hitBox;
+		JB_updateAsset(newBanana->assets, (JB_Asset) { .rect=&newBanana->assetsBox }, JB_AssetUpdate_rect);
 		JB_GameObject* banana = Game.bananas;
-		if (banana != NULL) {
-			while (banana->next) banana = banana->next;
+		if (banana != NULL){
+			while(banana->next) banana = banana->next;
 			banana->next = newBanana;
 		} else {
 			Game.bananas = newBanana;
 		}
 	}
 
-	if (vines){
-		JB_GameObject* mainGround = extra ? ground->next : ground;
+	if (spawnVines){
+		JB_GameObject* mainGround = spawnExtra ? ground->next : ground;
 		int ranVinesX = rand() % ( mainGround->hitBox.w - 160 );
 		int ranVinesY = rand() % ( mainGround->hitBox.h - 160 );
 		JB_GameObject* vinesObj = calloc(1, sizeof *vinesObj);
@@ -133,7 +140,8 @@ void JB_generateBlock() {
 		vinesObj->hitBox.y = mainGround->hitBox.y + ranVinesY;
 		vinesObj->next = ground;
 		vinesObj->assets = JB_new_Image("assets/sprites/vines.png");
-		JB_updateAsset(vinesObj->assets, (JB_Asset) { .rect=&vinesObj->hitBox }, JB_AssetUpdate_rect);
+		vinesObj->assetsBox = vinesObj->hitBox;
+		JB_updateAsset(vinesObj->assets, (JB_Asset) { .rect=&vinesObj->assetsBox }, JB_AssetUpdate_rect);
 		ground = vinesObj;
 	}
 
@@ -157,6 +165,22 @@ void JB_render_round() {
 	JB_renderAssets(Game.assetsHardcoded.pointCounter);
 	JB_renderAssets(Game.assetsHardcoded.bananaCounter);
 	JB_renderAssets(Game.assets);
+
+	/**
+ 	* Spieler rendern
+ 	*/
+	{
+		if (Game.data.round.showHitboxes){
+			SDL_SetRenderDrawColor(Game.renderer, 0, 255, 0, 255);
+			SDL_RenderDrawRect(Game.renderer, &Game.data.round.player->hitBox);
+		}
+		JB_updateAsset(Game.data.round.player->assets, (JB_Asset) { .rect=&Game.data.round.player->assetsBox },
+					   JB_AssetUpdate_rect);
+		JB_renderAssets(Game.data.round.player->assets);
+	}
+	/**
+	 * GameObjects rendern
+	 */
 	JB_GameObject* currentObject = Game.gameObjects;
 	while(currentObject) {
 		JB_renderAssets(currentObject->assets);
@@ -166,7 +190,9 @@ void JB_render_round() {
 		}
 		currentObject = currentObject->next;
 	}
-
+	/**
+	 * Bananen rendern
+	 */
 	currentObject = Game.bananas;
 	while(currentObject) {
 		JB_renderAssets(currentObject->assets);
@@ -177,11 +203,6 @@ void JB_render_round() {
 		currentObject = currentObject->next;
 	}
 
-	if (Game.data.round.showHitboxes){
-		SDL_SetRenderDrawColor(Game.renderer, 0, 255, 0, 255);
-		SDL_RenderDrawRect(Game.renderer, &Game.data.round.player->hitBox);
-	}
-	JB_renderAssets(Game.data.round.player->assets);
 }
 
 void JB_handleEvents_round(SDL_Event* event) {
@@ -203,3 +224,5 @@ void JB_handleEvents_round(SDL_Event* event) {
 			return;
 	}
 }
+
+#pragma clang diagnostic pop

@@ -75,7 +75,7 @@ JB_Asset* JB_updateAsset(JB_Asset* asset, JB_Asset update, int updateFlags) {
 	if(everything || updateFlags & JB_AssetUpdate_rect)
 		asset->rect = update.rect;
 	if(everything || updateFlags & JB_AssetUpdate_clip)
-		asset->clip = update.clip;
+		asset->clipSize = update.clipSize;
 	// Textur aktualisieren
 	if(everything || ( asset->string && (
 			updateFlags & JB_AssetUpdate_font ||

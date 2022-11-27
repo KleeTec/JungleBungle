@@ -7,10 +7,11 @@
 
 
 void JB_changeModeToMenu(bool pause) {
-	if (Game.buttons[JB_MODE_MENU]) {
+	if (Game.buttons[JB_MODE_MENU]){
 		JB_DestroyAssets(Game.assets);
 		Game.assets = NULL;
 	}
+	if (Mix_PlayingMusic())pause ? Mix_PauseMusic() : Mix_HaltMusic();
 
 	JB_Button* button3 = calloc(1, sizeof *button3);
 	button3->onclick = JB_quit;
@@ -45,7 +46,7 @@ void JB_changeModeToMenu(bool pause) {
 void JB_new_MenuButton(JB_Button* button, char* string) {
 	JB_Asset* text = JB_new_Text(string, (SDL_Colour) { 255, 255, 255, 255 }, Game.fonts.defaultFont);
 	JB_updateAsset(text,
-				   (JB_Asset) { .fontFitRect=true, .centered={.x=true, .y=true} , .rect=&button->rect},
+				   (JB_Asset) { .fontFitRect=true, .centered={ .x=true, .y=true }, .rect=&button->rect },
 				   JB_AssetUpdate_fontFitRect | JB_AssetUpdate_centeredAll | JB_AssetUpdate_rect);
 	button->assets = JB_new_Image("assets/button.png");
 	JB_updateAsset(button->assets, (JB_Asset) { .rect = &button->rect, .next=text },
@@ -73,7 +74,7 @@ void JB_render_menu() {
 	while(currentButton != NULL) {
 		SDL_Rect r = { Game.windowSize.w / 2 - 200, Game.windowSize.h / 2 + counter * 100, 400, 80 };
 		currentButton->rect = r;
-		if(currentButton->hover) {
+		if (currentButton->hover){
 			SDL_SetTextureAlphaMod(currentButton->assets->texture, 200);
 			SDL_SetTextureBlendMode(currentButton->assets->texture, SDL_BLENDMODE_BLEND);
 		} else {
@@ -94,13 +95,13 @@ void JB_handleEvents_menu(SDL_Event* event) {
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			({
-				if(event->button.button != SDL_BUTTON_LEFT) break;
+				if (event->button.button != SDL_BUTTON_LEFT) break;
 				JB_Button* object = Game.buttons[JB_MODE_MENU];
 				while(object != NULL) {
-					if(event->button.x >= object->rect.x &&
-					   event->button.y >= object->rect.y &&
-					   event->button.x <= object->rect.x + object->rect.w &&
-					   event->button.y <= object->rect.y + object->rect.h) {
+					if (event->button.x >= object->rect.x &&
+						event->button.y >= object->rect.y &&
+						event->button.x <= object->rect.x + object->rect.w &&
+						event->button.y <= object->rect.y + object->rect.h){
 						object->onclick(object);
 						return;
 					}
@@ -117,7 +118,7 @@ void JB_onTestButtonClick(JB_Button* this) {
 	JB_updateAsset(text, (JB_Asset) { .rect=&this->rect }, JB_AssetUpdate_rect);
 
 	JB_Asset* currentAsset = this->assets;
-	if(currentAsset == NULL) this->assets = text;
+	if (currentAsset == NULL) this->assets = text;
 	else {
 		while(currentAsset->next != NULL) currentAsset = currentAsset->next;
 		currentAsset->next = text;

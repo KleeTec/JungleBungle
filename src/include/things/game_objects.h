@@ -17,6 +17,7 @@ typedef struct JB_GameObject {
 	 * die HitBox des Objekts als SDL_Rect
 	 */
 	SDL_Rect hitBox;
+	SDL_Rect assetsBox;
 	/**
 	 * Der Bewegungsvektor des Objekts
 	 */

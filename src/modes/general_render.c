@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../include/main.h"
+#include "../include/util.h"
 
 /**
  * Rendert die FPS in die Ecke des Bildschirms
@@ -15,8 +16,24 @@ void JB_renderFPS() {
 }
 
 void JB_renderAssets(JB_Asset* assets) {
+	long currentTime = currentTimeMillis();
 	while(assets != NULL && assets->texture != NULL) {
-		if (assets->string && assets->font && assets->fontFitRect) {
+		// Ist die Clip-Größe auf 0 gesetzt, wird die Ressource voll gerendert, also der Pointer,
+		// der SDL übergeben wird, auf NULL gesetzt
+		SDL_Rect* p;
+		if (assets->clipSize.w == 0 || assets->clipSize.h == 0) p = NULL;
+		else p = &assets->clipSize;
+		// Andernfalls wird die x-Koordinate des Clips auf die richtige Stelle gepackt, und der
+		// Clipindex gegebenenfalls erhöht
+		if (assets->timePerClip > 0 && currentTime - assets->clipStartTime >= assets->timePerClip){
+			assets->clipIndex++;
+			assets->clipSize.x += assets->clipSize.w * assets->clipIndex;
+			if (assets->clipSize.x > assets->maxClips * assets->clipSize.w) assets->clipSize.x = 0;
+			if (assets->clipIndex > assets->maxClips) assets->clipIndex = 0;
+			assets->clipStartTime = currentTime;
+		}
+
+		if (assets->string && assets->font && assets->fontFitRect){
 			SDL_Rect r = *assets->rect;
 			int w = r.w, h = r.h;
 
@@ -24,15 +41,16 @@ void JB_renderAssets(JB_Asset* assets) {
 			if (assets->centered.x) r.x += ( w - r.w ) / 2;
 			if (assets->centered.y) r.y += ( h - r.h ) / 2;
 
-			SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, &r);
-		} else SDL_RenderCopy(Game.renderer, assets->texture, assets->clip, assets->rect);
+
+			SDL_RenderCopy(Game.renderer, assets->texture, p, &r);
+		} else SDL_RenderCopy(Game.renderer, assets->texture, p, assets->rect);
 		assets = assets->next;
 	}
 }
 
 
 /**
- * Wenn über ein Objekt drüber gehalten wird, wird .hover=rue gesetzt.
+ * Wenn über ein Objekt drüber gehalten wird, wird .hover=true gesetzt.
  */
 void JB_setHover(enum JB_ModeType modeType, SDL_Event* event) {
 	JB_Button* object = Game.buttons[modeType];

@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include "asset.h"
 #include "modes.h"
@@ -77,6 +78,12 @@ extern struct JB_Game_Struct {
 	JB_Asset* assets;
 	JB_GameObject* bananas;
 	JB_GameObject* gameObjects;
+
+	struct {
+		Mix_Music* music;
+		Mix_Chunk* essen;
+		Mix_Chunk* sterben[2];
+	} sounds;
 	JB_Button* buttons[sizeof(enum JB_ModeType)];
 
 	struct {
