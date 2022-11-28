@@ -473,10 +473,13 @@ void JB_init_game(char* name) {
 		Game.name = name;
 		if (( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_onError("SDL_Init");
 		if (( Game.error_code = TTF_Init())) JB_onError("TTF_Init");
+		SDL_Rect screenSize;
+		SDL_GetDisplayUsableBounds(0, &screenSize);
 		Game.window = SDL_CreateWindow(name,
 									   SDL_WINDOWPOS_CENTERED,
-									   SDL_WINDOWPOS_CENTERED, 1920, 1080,
+									   SDL_WINDOWPOS_CENTERED, screenSize.w, screenSize.h,
 									   SDL_WINDOW_RESIZABLE);
+
 		if (Game.window == NULL) JB_onError("Create Window");
 		if (!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
 			JB_onError("Create Renderer");
