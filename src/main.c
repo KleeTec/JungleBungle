@@ -408,8 +408,13 @@ void JB_SaveData() {
 	if (!assetsDir) path = "../saves";
 	// ist der saves-Ordner noch nicht vorhanden, wird er erstellt.
 	DIR* dir = opendir(path);
+#if defined(_WIN32)
+	if (!dir) mkdir(path);
+#elif defined(__unix__)
 	if (!dir) mkdir(path, 0777);
-	// Die Datei wird automatisch erstellt, wenn sie nicht existiert
+#endif
+
+	// Die Datei wird automatisch erstellt, wenn sie nicht existiert.
 	// Der Dateimodus ist wb+ ==> write binary, create if not existing
 	FILE* file = fopen("saves/data.jb", "wb+");
 	struct JB_SaveData saveData;
