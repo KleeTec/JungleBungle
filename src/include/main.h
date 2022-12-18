@@ -115,7 +115,7 @@ void JB_LoadData();
 SDL_Texture* JB_loadImage(char* path);
 
 void JB_quit();
-void JB_onError(char* position);
+void JB_exitWithError(char* position);
 void JB_DestroyGameObjects(JB_GameObject* gameObject);
 void JB_DestroyAssets(JB_Asset* assets);
 void JB_checkBackground();

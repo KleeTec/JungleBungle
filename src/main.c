@@ -469,10 +469,9 @@ void JB_init_game(char* name) {
 	 * Folgende Zeilen beschreiben einen normalen Aufbau eines SDL-Programms mit Erstellung eines Fensters, setzen des Names, usw...
 	 */
 	{
-		// TODO: Window Size automatisch vom Monitor übernehmen
 		Game.name = name;
-		if (( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_onError("SDL_Init");
-		if (( Game.error_code = TTF_Init())) JB_onError("TTF_Init");
+		if (( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_exitWithError("SDL_Init");
+		if (( Game.error_code = TTF_Init())) JB_exitWithError("TTF_Init");
 		SDL_Rect screenSize;
 		SDL_GetDisplayUsableBounds(0, &screenSize);
 		Game.window = SDL_CreateWindow(name,
@@ -480,9 +479,9 @@ void JB_init_game(char* name) {
 									   SDL_WINDOWPOS_CENTERED, screenSize.w, screenSize.h,
 									   SDL_WINDOW_RESIZABLE);
 
-		if (Game.window == NULL) JB_onError("Create Window");
+		if (Game.window == NULL) JB_exitWithError("Create Window");
 		if (!( Game.renderer = SDL_CreateRenderer(Game.window, -1, SDL_RENDERER_ACCELERATED)))
-			JB_onError("Create Renderer");
+			JB_exitWithError("Create Renderer");
 	}
 
 	/**
@@ -504,7 +503,7 @@ void JB_init_game(char* name) {
  	*/
 	{
 		Game.error_code = !IMG_Init(IMG_INIT_PNG);
-		if (Game.error_code) JB_onError("IMG init");
+		if (Game.error_code) JB_exitWithError("IMG init");
 		Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
 
 		Game.assetsHardcoded.background1 = JB_new_Image("assets/sprites/background.png");
@@ -597,7 +596,7 @@ SDL_Texture* JB_loadImage(char* path) {
 	SDL_Texture* img = IMG_LoadTexture(Game.renderer, path);
 	if (img == NULL){
 		img = IMG_LoadTexture(Game.renderer, appendChar("../", path));
-		if (img == NULL) JB_onError("Texture loading");
+		if (img == NULL) JB_exitWithError("Texture loading");
 	}
 	return img;
 }
@@ -715,7 +714,7 @@ void JB_quit() {
  * @param JB_Game ==> das Spiel
  * @param position ==> die Position im Kodex, an der der Error auftrat, da C keine Stacktrace anbietet...
  */
-void JB_onError(char* position) {
+void JB_exitWithError(char* position) {
 	SDL_LogError(Game.error_code, "Error %d %s: %s", Game.error_code, position, SDL_GetError());
 	JB_quit();
 }
