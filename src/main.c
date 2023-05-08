@@ -370,7 +370,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 			SDL_RenderClear(Game.renderer);
 			JB_renderAssets(Game.assetsHardcoded.background1);
 			JB_renderAssets(Game.assetsHardcoded.background2);
+
 			Game.renderFunctions[Game.modeType]();
+
 			// JB_renderFPS();
 			SDL_RenderPresent(Game.renderer);
 		}
@@ -402,7 +404,17 @@ void JB_removeBanana(JB_GameObject* banana) {
  * Das erste Byte wird mit den größten 8 bit des integers behandelt.
  */
 void JB_SaveData() {
-	// Die Spielstände sollen im gleichen ORdner wie die Assets gespeichert werden.
+	struct JB_SaveData saveData;
+	saveData.bananaScore[0] = (char) ( Game.bananaScore >> 24 );
+	saveData.bananaScore[1] = (char) ( Game.bananaScore >> 16 );
+	saveData.bananaScore[2] = (char) ( Game.bananaScore >> 8 );
+	saveData.bananaScore[3] = (char) Game.bananaScore;
+	saveData.bestScore[0] = (char) ( Game.bestScore >> 24 );
+	saveData.bestScore[1] = (char) ( Game.bestScore >> 16 );
+	saveData.bestScore[2] = (char) ( Game.bestScore >> 8 );
+	saveData.bestScore[3] = (char) Game.bestScore;
+
+	// Die Spielstände sollen im gleichen Ordner wie die Assets gespeichert werden.
 	char* path = "saves";
 	DIR* assetsDir = opendir("assets");
 	if (!assetsDir) path = "../saves";
@@ -416,16 +428,11 @@ void JB_SaveData() {
 
 	// Die Datei wird automatisch erstellt, wenn sie nicht existiert.
 	// Der Dateimodus ist wb+ ==> write binary, create if not existing
-	FILE* file = fopen("saves/data.jb", "wb+");
-	struct JB_SaveData saveData;
-	saveData.bananaScore[0] = (char) ( Game.bananaScore >> 24 );
-	saveData.bananaScore[1] = (char) ( Game.bananaScore >> 16 );
-	saveData.bananaScore[2] = (char) ( Game.bananaScore >> 8 );
-	saveData.bananaScore[3] = (char) Game.bananaScore;
-	saveData.bestScore[0] = (char) ( Game.bestScore >> 24 );
-	saveData.bestScore[1] = (char) ( Game.bestScore >> 16 );
-	saveData.bestScore[2] = (char) ( Game.bestScore >> 8 );
-	saveData.bestScore[3] = (char) Game.bestScore;
+	char name[] = "/data.jb";
+	char dataJBPath[(sizeof path) + (sizeof name) -1] = {0};
+	strcat(dataJBPath, path);
+	strcat(dataJBPath, name);
+	FILE* file = fopen(dataJBPath, "wb+");
 	fwrite(&saveData, sizeof saveData, 1, file);
 	fclose(file);
 }
@@ -470,7 +477,7 @@ void JB_init_game(char* name) {
 	 */
 	{
 		Game.name = name;
-		if (( Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_exitWithError("SDL_Init");
+		if ((Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_exitWithError("SDL_Init");
 		if (( Game.error_code = TTF_Init())) JB_exitWithError("TTF_Init");
 		SDL_Rect screenSize;
 		SDL_GetDisplayUsableBounds(0, &screenSize);
