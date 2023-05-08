@@ -37,15 +37,9 @@ union JB_GameMode {
 		enum { JB_MODE_MENU_MAIN } state;
 	} menu;
 
-	/**
-	 *  Wenn sich das Spiel im Runden-Modus befindet
-	 */
 	struct {
-		enum { JB_MODE_ROUND_WALK } state;
 	} round;
-
 	struct {
-
 	} levelEditor;
 };
 
