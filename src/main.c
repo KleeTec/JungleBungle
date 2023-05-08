@@ -472,6 +472,7 @@ bool JB_checkCollision(SDL_Rect hitBox1, SDL_Rect hitBox2) {
  * @param name ==> der Name des Spiels
  */
 void JB_init_game(char* name) {
+	SDL_Rect screenSize;
 	/**
 	 * Folgende Zeilen beschreiben einen normalen Aufbau eines SDL-Programms mit Erstellung eines Fensters, setzen des Names, usw...
 	 */
@@ -479,7 +480,6 @@ void JB_init_game(char* name) {
 		Game.name = name;
 		if ((Game.error_code = SDL_Init(SDL_INIT_EVERYTHING))) JB_exitWithError("SDL_Init");
 		if (( Game.error_code = TTF_Init())) JB_exitWithError("TTF_Init");
-		SDL_Rect screenSize;
 		SDL_GetDisplayUsableBounds(0, &screenSize);
 		Game.window = SDL_CreateWindow(name,
 									   SDL_WINDOWPOS_CENTERED,
@@ -514,7 +514,8 @@ void JB_init_game(char* name) {
 		Game.fonts.defaultFont = JB_loadFont("assets/default_font.ttf", 24);
 
 		Game.assetsHardcoded.background1 = JB_new_Image("assets/sprites/background.png");
-		static SDL_Rect br1 = { -10, -30, 4224, 1188 };
+		static SDL_Rect br1 = { -10, -30, 4224,0 };
+		br1.h = screenSize.h;
 		JB_updateAsset(Game.assetsHardcoded.background1, (JB_Asset) { .rect=&br1 }, JB_AssetUpdate_rect);
 
 		Game.assetsHardcoded.background2 = JB_new_Image("assets/sprites/background.png");
