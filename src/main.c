@@ -723,6 +723,6 @@ void JB_quit() {
  * @param position ==> die Position im Kodex, an der der Error auftrat, da C keine Stacktrace anbietet...
  */
 void JB_exitWithError(char* position) {
-	SDL_LogError(Game.error_code, "Error %d %s: %s", Game.error_code, position, SDL_GetError());
+	fprintf(stderr, "Error %d %s: %s", Game.error_code, position, SDL_GetError());
 	JB_quit();
 }
