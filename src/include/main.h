@@ -101,8 +101,8 @@ extern struct JB_Game_Struct {
  * Zahlen werden im Big-Endian-Format gespeichert. Ein Integer nimmt hier 4 Bytes ein.
  */
 struct JB_SaveData {
-	char bestScore[4];
-	char bananaScore[4];
+	unsigned char bestScore[4];
+	unsigned char bananaScore[4];
 };
 
 
