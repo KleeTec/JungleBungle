@@ -27,6 +27,9 @@ struct JB_Game_Struct Game = {};
  * @return ==> nichts, da immer zuerst die JB_quit() aufgerufen wird
  */
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) {
+	char buffer[1024];
+	getcwd(buffer, sizeof buffer);
+	printf("CWD: %s\n", buffer);
 	// Spiel laden, Texturen in das Spiel laden, usw.
 	JB_init_game("Jungle Bungle");
 	// am Anfang wird einmal gerendert, danach nur, wenn die entsprechende Zeit
@@ -39,9 +42,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 	Game.renderFunctions[Game.modeType]();
 
 //	Game.data.round.showHitboxes = true;
-	char buffer[1024];
-	getcwd(buffer, sizeof buffer);
-	SDL_Log("CWD: %s", buffer);
 
 	while(Game.running) {
 		double delta_time = (double) ( t2 - t1 );
