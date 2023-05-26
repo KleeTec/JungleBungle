@@ -92,7 +92,7 @@ typedef struct JB_Button {
 	 * die Funktion, welche bei einem Klick ausgeführt werden soll
 	 * @param game ==> das Spiel
 	 */
-	void (* onclick)();
+	void (* onclick)(void*);
 	/**
 	 * verlinkte Liste zum nächste anklickbaren Objekt
 	 */

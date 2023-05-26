@@ -4,20 +4,21 @@
 #include "../include/game_logic.h"
 #include "../include/main.h"
 
+#define EVENT_FUNCTION(x) ((void (*)())(x))
 
 void JB_changeModeToLevelEditor() {
 	static JB_Button button1 = {
 			.rect={ 1, 1, 100, 100 },
-			.onclick=(void (*)()) JB_changeModeToMenu
+			.onclick=EVENT_FUNCTION(JB_changeModeToMenu)
 	};
 	static JB_Button button2 = {
 			.rect ={ 100, 100, 200, 200 },
-			.onclick=JB_initDrag,
+			.onclick=EVENT_FUNCTION(JB_initDrag),
 			.next=&button1
 	};
 	static JB_Button button3 = {
 			.rect ={ 100, 100, 200, 200 },
-			.onclick=JB_initDrag,
+			.onclick=EVENT_FUNCTION(JB_initDrag),
 			.next=&button2
 	};
 	Game.buttons[JB_MODE_LEVEL_EDITOR] = &button3;
