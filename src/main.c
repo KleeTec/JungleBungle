@@ -414,9 +414,9 @@ void JB_SaveData() {
 	saveData.bestScore[3] = (char) Game.bestScore;
 
 	// Die Spielstände sollen im gleichen Ordner wie die Assets gespeichert werden.
-	char* path = "saves";
+	char path[] = "saves\0\0\0";
 	DIR* assetsDir = opendir("assets");
-	if (!assetsDir) path = "../saves";
+	if (!assetsDir) memcpy(path, "../saves", sizeof path);
 	// ist der saves-Ordner noch nicht vorhanden, wird er erstellt.
 	DIR* dir = opendir(path);
 #if defined(_WIN32)
